@@ -1,7 +1,7 @@
 """Python module for dealing with two-dimensional cartesian coordinates and vector operations."""
 
 from __future__ import annotations
-from math import cos, hypot, sin
+from math import cos, hypot, sin, atan2
 from collections.abc import Iterator
 
 
@@ -109,6 +109,9 @@ class Point:
     def dist(self, point: Point, /) -> float:
         """Find the distance between two points."""
         return hypot(self.x - point.x, self.y - point.y)
+
+    def angle(self, point: Point, /) -> float:
+        return atan2(self.y - point.y, self.x - point.x)
 
     def dot(self, point: Point, /) -> float:
         """Find the dot product of two points."""

@@ -6,12 +6,9 @@ class Softbody:
     nodes: list[Node]
     links: list[Link]
 
-    def __init__(self, nodes: list[Node], links: list[Link] = None) -> None:
+    def __init__(self, nodes: list[Node], links: list[Link]) -> None:
         self.nodes = nodes
-        if links is not None:
-            self.links = links
-        else:
-            self.links = []
+        self.links = links
 
     def iterate(self, time: float) -> None:
         for node in self.nodes:
@@ -20,9 +17,9 @@ class Softbody:
         for link in self.links:
             node_1 = link.node_1
             node_2 = link.node_2
-            force = 1.0 * (node_1.position.dist(node_2.position) - link.distance) * (node_2.position - node_1.position) / node_1.position.dist(node_2.position)
-            node_1.force += force
-            node_2.force -= force
+            force = Point.polar(10 * (node_1.position.dist(node_2.position) - link.distance), node_1.position.angle(node_2.position))
+            node_1.force -= force
+            node_2.force += force
 
         for node in self.nodes:
             node.iterate(time)
