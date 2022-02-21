@@ -121,3 +121,7 @@ class Point:
     def copy(self) -> Point:
         """Copy the point instance."""
         return Point(self.x, self.y)
+
+    @classmethod
+    def polar(cls, r: float, t: float) -> Point:
+        return cls(r * cos(t), r * sin(t))
