@@ -11,7 +11,7 @@ class Point:
     y: float
     z: float
 
-    def __init__(self, x: float, y: float, z: float) -> None:
+    def __init__(self, x: float, y: float, z: float = 0) -> None:
         """Instantiate a point from cartesian coordinates."""
         self.x = x
         self.y = y
