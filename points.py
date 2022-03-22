@@ -9,6 +9,7 @@ class Point:
     """Three-dimensional point represented in cartesian coordinates."""
     x: float
     y: float
+    z: float
 
     def __init__(self, x: float, y: float, z: float) -> None:
         """Instantiate a point from cartesian coordinates."""
