@@ -23,6 +23,9 @@ class Point:
         yield self.y
         yield self.z
 
+    def __str__(self) -> str:
+        return f"({self.x}, {self.y}, {self.z})"
+
     def __add__(self, point: Point, /) -> Point:
         """(+) Add caller point with parameter point, without modification to point."""
         return self.copy().add(point)
