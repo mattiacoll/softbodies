@@ -1,29 +1,69 @@
-from math import nan, isnan
+from math import nan, isnan, isqrt
 from time import sleep
 from scipy.constants import g
 import pygame
 from points import Point
 
+cloth_nodes: int = 25
+nodes_references: list[list[int]] = [[y * isqrt(cloth_nodes) + x for x in range(isqrt(cloth_nodes))] for y in range(isqrt(cloth_nodes))]
 
-nodes: int = 4
-nodes_mass: list[float] = [1, 1, 1, 1]
-nodes_position: list[Point] = [Point(0, 0), Point(1, 0), Point(1, 1), Point(0, 1)]
-nodes_velocity: list[Point] = [Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0)]
-nodes_acceleration: list[Point] = [Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0)]
-nodes_force: list[Point] = [Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0)]
+nodes: int = cloth_nodes
+nodes_mass: list[float] = [1 for n in range(cloth_nodes)]
+nodes_position: list[Point] = [Point(x, y) for y in range(isqrt(cloth_nodes)) for x in range(isqrt(cloth_nodes))]
+nodes_velocity: list[Point] = [Point(0, 0) for n in range(cloth_nodes)]
+nodes_acceleration: list[Point] = [Point(0, 0) for n in range(cloth_nodes)]
+nodes_force: list[Point] = [Point(0, 0) for n in range(cloth_nodes)]
 
-links: int = 6
-links_nodes: list[tuple[int, int]] = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (1, 3)]
-links_resting: list[float] = [0.9, 0.9, 0.9, 0.9, 1.3, 1.3]
-links_distance: list[float] = [nan, nan, nan, nan, nan, nan]
-links_stiffness: list[float] = [100, 100, 100, 100, 100, 100]
-links_dampening: list[float] = [10, 10, 10, 10, 10, 10]
-links_speed: list[float] = [0, 0, 0, 0, 0, 0]
+links: int = 2 * (isqrt(cloth_nodes) * (isqrt(cloth_nodes) - 1) + (isqrt(cloth_nodes) - 1) ** 2)
+links_nodes: list[tuple[int, int]] = []
+links_resting: list[float] = []
+links_distance: list[float] = []
+links_stiffness: list[float] = []
+links_dampening: list[float] = []
+links_speed: list[float] = []
+
+# Adding horizontal springs
+for y in range(isqrt(cloth_nodes)):
+    for x in range(isqrt(cloth_nodes) - 1):
+        links_nodes.append((nodes_references[y][x], nodes_references[y][x + 1]))
+        links_resting.append(0.9)
+        links_distance.append(nan)
+        links_stiffness.append(200)
+        links_dampening.append(5)
+        links_speed.append(0)
+
+# Adding vertical springs
+for x in range(isqrt(cloth_nodes)):
+    for y in range(isqrt(cloth_nodes) - 1):
+        links_nodes.append((nodes_references[y][x], nodes_references[y + 1][x]))
+        links_resting.append(0.9)
+        links_distance.append(nan)
+        links_stiffness.append(200)
+        links_dampening.append(5)
+        links_speed.append(0)
+
+# Adding diagonal springs
+for x in range(isqrt(cloth_nodes) - 1):
+    for y in range(isqrt(cloth_nodes) - 1):
+        links_nodes.append((nodes_references[x][y], nodes_references[x + 1][y + 1]))
+        links_resting.append(1.3)
+        links_distance.append(nan)
+        links_stiffness.append(200)
+        links_dampening.append(5)
+        links_speed.append(0)
+for x in range(isqrt(cloth_nodes) - 1):
+    for y in range(isqrt(cloth_nodes) - 1):
+        links_nodes.append((nodes_references[x][y + 1], nodes_references[x + 1][y]))
+        links_resting.append(1.3)
+        links_distance.append(nan)
+        links_stiffness.append(200)
+        links_dampening.append(5)
+        links_speed.append(0)
 
 iterations: int = 10000
-time_step: float = 0.0001
+time_step: float = 0.001
 view_minimum = Point(-1, -1)
-view_maximum = Point(2, 2)
+view_maximum = Point(6, 6)
 
 pygame.init()
 screen = pygame.display.set_mode([1000, 1000])
@@ -31,7 +71,7 @@ screen = pygame.display.set_mode([1000, 1000])
 
 def transform(point: Point) -> Point:
     return Point(1000 * (point.x - view_minimum.x) / (view_maximum.x - view_minimum.x),
-                 1000 * (point.y - view_minimum.y) / (view_maximum.y - view_minimum.y))
+                 1000 * (1 - (point.y - view_minimum.y) / (view_maximum.y - view_minimum.y)))
 
 
 for i in range(iterations):
@@ -64,14 +104,18 @@ for i in range(iterations):
 
     # Integration
     for n in range(nodes):
-        print(*nodes_force[n])
         nodes_acceleration[n] = nodes_force[n] / nodes_mass[n]
         nodes_velocity[n] += nodes_acceleration[n] * time_step
+
+        if n == 24:
+            pass
+            continue
+
         nodes_position[n] += nodes_velocity[n] * time_step
 
     # Conditions
-    nodes_position[0].set(Point(0, 0))
-    nodes_position[1].set(Point(1, 0))
+    # enter here
+
 
     screen.fill((255, 255, 255))
 
@@ -79,11 +123,11 @@ for i in range(iterations):
         link_nodes = links_nodes[l]
         transformed_1 = transform(nodes_position[link_nodes[0]])
         transformed_2 = transform(nodes_position[link_nodes[1]])
-        pygame.draw.line(screen, (0, 0, 255), (transformed_1.x, transformed_1.y), (transformed_2.x, transformed_2.y), 3)
+        pygame.draw.line(screen, (255, 0, 0), (transformed_1.x, transformed_1.y), (transformed_2.x, transformed_2.y), 3)
 
     for n in range(nodes):
         transformed = transform(nodes_position[n])
-        pygame.draw.circle(screen, (255, 0, 0), (transformed.x, transformed.y), 10)
+        pygame.draw.circle(screen, (0, 0, 255), (transformed.x, transformed.y), 10)
 
     pygame.display.flip()
 
