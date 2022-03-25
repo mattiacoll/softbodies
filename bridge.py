@@ -1,5 +1,6 @@
 from __future__ import annotations
 from math import sqrt
+import numpy as np
 from scipy.constants import g
 import pygame
 from points import Point
@@ -67,7 +68,7 @@ class Link:
         return f"{self.nodes[0].position} <- Link -> {self.nodes[1].position}"
 
     def get_unit_vector(self) -> Point:
-        return (self.nodes[1].position - self.nodes[0].position) / self.resting_distance
+        return (self.nodes[0].position - self.nodes[1].position) / self.resting_distance
 
     def get_displacement(self) -> float:
         return self.actual_distance - self.resting_distance
@@ -95,52 +96,62 @@ class Link:
         self.nodes[1].force -= self.get_spring_force() * self.get_unit_vector()
 
 
-length = 10
-width = 5
-height = 20
+nodes = [Node(mass=10, position=Point(0, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(1, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(2, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(3, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(4, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(5, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(6, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(7, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(8, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(9, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(10, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
 
-nodes = [[[Node(mass=1, position=Point(x, y, z), velocity=Point(0, 0, 0), acceleration=Point(0, 0, 0), force=Point(0, 0, 0))
-         for z in range(height + 1)] for y in range(width + 1)] for x in range(length + 1)]
-links = []
+         Node(mass=10, position=Point(0, -2), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+         Node(mass=10, position=Point(10, -2), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0))]
 
-for x in range(1, length - 1):
-    for y in range(1, width):
-        for z in range(1, height):
-            links.append(Link(nodes=(nodes[x][y][z], nodes[x + 1][y][z]),
-                              resting_distance=0.9,
-                              actual_distance=1,
-                              stiffness=1,
-                              dampening=1,
-                              actual_speed=0))
+links = [Link(nodes=(nodes[0], nodes[1]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[1], nodes[2]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[2], nodes[3]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[3], nodes[4]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[4], nodes[5]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[5], nodes[6]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[6], nodes[7]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[7], nodes[8]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[8], nodes[9]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[9], nodes[10]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
 
-system = System(nodes=[nodes[x][y][z] for x in range(length + 1) for y in range(width + 1) for z in range(height + 1)], links=links)
+         Link(nodes=(nodes[11], nodes[3]), resting_distance=4, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
+         Link(nodes=(nodes[12], nodes[7]), resting_distance=4, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1)]
+
+system = System(nodes=nodes, links=links)
 
 
 iteration = 1
-iterations = 1000
-delta_time = 0.01
-
-camera_position = Point(0, 0, 0)
-camera_focal_distance = 1
+iterations = 30000
+delta_time = 0.001
 
 
-def transformed(position: Point) -> Point:
-    try:
-        return Point(500 * ((position.x - camera_position.x) * camera_focal_distance / ((position.z - camera_position.z) + 20) + 0.5), 500 * ((position.y - camera_position.y) * camera_focal_distance / ((position.z - camera_position.z) + 20) + 0.5))
-    except ZeroDivisionError:
-        return Point(0, 0)
 
+view_minimum = Point(-2, -6)
+view_maximum = Point(12, 8)
 
 pygame.init()
 screen = pygame.display.set_mode([500, 500])
 
+def transformed(point: Point) -> Point:
+    return Point(500 * (point.x - view_minimum.x) / (view_maximum.x - view_minimum.x),
+                 500 * (1 - (point.y - view_minimum.y) / (view_maximum.y - view_minimum.y)))
+
 running = True
 
 for i in range(iterations):
-    camera_position.x += 0.1
-
     for node in system.nodes:
         node.force.set(Point(0, 0, 0))
+
+    for node in system.nodes:
+        node.force.y -= node.mass * g
 
     for link in system.links:
         link.update_actual_speed(delta_time)
@@ -148,6 +159,11 @@ for i in range(iterations):
 
     for node in system.nodes:
         node.iterate(delta_time)
+
+    system.nodes[0].position.set(Point(0, 0))
+    system.nodes[10].position.set(Point(10, 0))
+    system.nodes[11].position.set(Point(0, -2))
+    system.nodes[12].position.set(Point(10, -2))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -169,3 +185,5 @@ for i in range(iterations):
 
     pygame.display.flip()
     iteration += 1
+
+pygame.quit()
