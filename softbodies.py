@@ -6,6 +6,11 @@ class Softbody:
     nodes: list[Node]
     links: list[Link]
 
+    def __init__(self, nodes: list[Node], links: list[Link]) -> None:
+        self.nodes = nodes
+        self.links = links
+
+
 class Node:
     mass: float
     position: Point
