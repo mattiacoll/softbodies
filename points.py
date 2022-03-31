@@ -1,4 +1,4 @@
-"""Python module for dealing with three-dimensional cartesian coordinates and vector operations."""
+"""Python module for dealing with two-dimensional cartesian coordinates and vector operations."""
 
 from __future__ import annotations
 from math import hypot
@@ -6,25 +6,22 @@ from collections.abc import Iterator
 
 
 class Point:
-    """Three-dimensional point represented in cartesian coordinates."""
+    """Two-dimensional point represented in cartesian coordinates."""
     x: float
     y: float
-    z: float
 
-    def __init__(self, x: float, y: float, z: float = 0) -> None:
+    def __init__(self, x: float, y: float) -> None:
         """Instantiate a point from cartesian coordinates."""
         self.x = x
         self.y = y
-        self.z = z
 
     def __iter__(self) -> Iterator[float]:
         """Iterate through the pair of coordinates."""
         yield self.x
         yield self.y
-        yield self.z
 
     def __str__(self) -> str:
-        return f"({self.x}, {self.y}, {self.z})"
+        return f"({self.x}, {self.y})"
 
     def __add__(self, point: Point, /) -> Point:
         """(+) Add caller point with parameter point, without modification to point."""
@@ -74,7 +71,7 @@ class Point:
         """(@) Find the dot product of two points as vectors."""
         return self.dot(point)
 
-    def __mod__(self, point: Point, /) -> Point:
+    def __mod__(self, point: Point, /) -> float:
         """(%) Find the cross product of two points as vectors."""
         return self.cross(point)
 
@@ -82,55 +79,48 @@ class Point:
         """Set coordinates of caller point to match parameter point."""
         self.x = point.x
         self.y = point.y
-        self.z = point.z
         return self
 
     def add(self, point: Point, /) -> Point:
         """Add caller point with parameter point, with modification to caller point."""
         self.x += point.x
         self.y += point.y
-        self.z += point.z
         return self
 
     def sub(self, point: Point, /) -> Point:
         """Subtract parameter point from caller point, with modification to caller point."""
         self.x -= point.x
         self.y -= point.y
-        self.z -= point.z
         return self
 
     def mul(self, multiplier: float, /) -> Point:
         """Multiply point coordinates by a number, with modification to point."""
         self.x *= multiplier
         self.y *= multiplier
-        self.z *= multiplier
         return self
 
     def div(self, divisor: float, /) -> Point:
         """Divide point coordinates by a number, with modification to point."""
         self.x /= divisor
         self.y /= divisor
-        self.z /= divisor
         return self
 
     def len(self) -> float:
         """Find the distance to the origin."""
-        return hypot(self.x, self.y, self.z)
+        return hypot(self.x, self.y)
 
     def dist(self, point: Point, /) -> float:
         """Find the distance between two points."""
-        return hypot(self.x - point.x, self.y - point.y, self.z - point.z)
+        return hypot(self.x - point.x, self.y - point.y)
 
     def dot(self, point: Point, /) -> float:
         """Find the dot product of two points."""
-        return self.x * point.x + self.y * point.y + self.z * point.z
+        return self.x * point.x + self.y * point.y
 
-    def cross(self, point: Point, /) -> Point:
+    def cross(self, point: Point, /) -> float:
         """Find the cross product of two points."""
-        return Point(self.y * point.z - self.z * point.y,
-                     self.z * point.x - self.x * point.z,
-                     self.x * point.y - self.y * point.x)
+        return self.x * point.y - self.y * point.x
 
     def copy(self) -> Point:
         """Copy the point instance."""
-        return Point(self.x, self.y, self.z)
+        return Point(self.x, self.y)
