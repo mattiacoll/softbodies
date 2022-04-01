@@ -11,6 +11,18 @@ class Softbody:
         self.nodes = nodes
         self.links = links
 
+    def get_total_mass(self) -> float:
+        total_mass = 0
+        for node in self.nodes:
+            total_mass += node.mass
+        return total_mass
+
+    def get_center_mass(self) -> Point:
+        center_mass = Point(0, 0)
+        for node in self.nodes:
+            center_mass += node.mass * node.position
+        return center_mass
+
     def apply_force(self, force: Point) -> None:
         for node in self.nodes:
             node.apply_force(force)

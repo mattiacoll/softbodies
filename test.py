@@ -14,6 +14,9 @@ links = [Link(nodes=(nodes[0], nodes[1]), stiffness=100, dampening=1),
          Link(nodes=(nodes[1], nodes[3]), stiffness=100, dampening=1, resting_length=2)]
 softbody = Softbody(nodes=nodes, links=links)
 
+from structures import a
+softbody = a
+
 camera_position = Point(0, 0)
 camera_zoom = 0.2
 
@@ -51,6 +54,6 @@ while running:
         pygame.draw.line(screen, color=(0, 0, 255), start_pos=transformed(link.nodes[0].position), end_pos=transformed(link.nodes[1].position), width=5)
 
     for node in softbody.nodes:
-        pygame.draw.circle(screen, color=(255, 0, 0), center=transformed(node.position), radius=10)
+        pygame.draw.circle(screen, color=(255, 0, 0), center=transformed(node.position), radius=3)
 
     pygame.display.flip()
