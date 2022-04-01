@@ -11,6 +11,10 @@ class Softbody:
         self.nodes = nodes
         self.links = links
 
+    def apply_force(self, force: Point) -> None:
+        for node in self.nodes:
+            node.apply_force(force)
+
     def apply_link_forces(self) -> None:
         """Apply the force of each link on each of the corresponding nodes."""
         for link in self.links:
@@ -32,19 +36,18 @@ class Node:
     def __init__(self, mass: float, position: Point) -> None:
         self.mass = mass
         self.position = position
+        self.velocity = Point(0, 0)
+        self.force = Point(0, 0)
 
     def apply_force(self, force: Point) -> None:
         """Add a singular force to the node."""
         self.force += force
 
-    def reset_force(self) -> None:
-        """Reset the force applied on the node."""
-        self.force = Point(0, 0)
-
     def iterate(self, delta_time: float) -> None:
         """Integrate the position and velocity with Euler's method."""
         self.velocity += (self.force / self.mass) * delta_time
         self.position += self.velocity * delta_time
+        self.force.set(Point(0, 0))
 
 
 class Link:
@@ -54,9 +57,12 @@ class Link:
     stiffness: float
     dampening: float
 
-    def __init__(self, nodes: tuple[Node, Node], resting_length: float, stiffness: float, dampening: float) -> None:
+    def __init__(self, nodes: tuple[Node, Node], stiffness: float, dampening: float, resting_length: float = None) -> None:
         self.nodes = nodes
-        self.resting_length = resting_length
+        if resting_length is None:
+            self.resting_length = Point.dist(nodes[0].position, nodes[1].position)
+        else:
+            self.resting_length = resting_length
         self.stiffness = stiffness
         self.dampening = dampening
 
