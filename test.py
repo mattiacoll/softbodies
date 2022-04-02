@@ -1,6 +1,8 @@
+from time import sleep
 from scipy.constants import g
 import pygame
 from softbodies import Softbody, Node, Link, Point
+from structures import Tower
 
 nodes = [Node(mass=1, position=Point(1, 1)),
          Node(mass=1, position=Point(1, -1)),
@@ -13,9 +15,8 @@ links = [Link(nodes=(nodes[0], nodes[1]), stiffness=100, dampening=1),
          Link(nodes=(nodes[0], nodes[2]), stiffness=100, dampening=1, resting_length=2),
          Link(nodes=(nodes[1], nodes[3]), stiffness=100, dampening=1, resting_length=2)]
 softbody = Softbody(nodes=nodes, links=links)
+softbody = Tower(mass=100, position=Point(0, 0), size=(2, 2), grid=(2, 2))
 
-from structures import a
-softbody = a
 
 camera_position = Point(0, 0)
 camera_zoom = 0.2
@@ -38,22 +39,24 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    softbody.apply_force(Point(0, -1 * g))
+    for node in softbody.nodes:
+        node.apply_force(force=Point(0, -node.mass * g))
     softbody.apply_link_forces()
 
     for n, node in enumerate(softbody.nodes):
-        if n == 3:
+        if n == 0:
             node.force.set(Point(0, 0))
             continue
-        node.iterate(delta_time=0.001)
+        node.iterate(delta_time=0.01)
 
 
     screen.fill((255, 255, 255))
 
     for link in softbody.links:
-        pygame.draw.line(screen, color=(0, 0, 255), start_pos=transformed(link.nodes[0].position), end_pos=transformed(link.nodes[1].position), width=5)
+        pygame.draw.line(screen, color=(0, 0, 255), start_pos=transformed(link.nodes[0].position), end_pos=transformed(link.nodes[1].position), width=3)
 
     for node in softbody.nodes:
         pygame.draw.circle(screen, color=(255, 0, 0), center=transformed(node.position), radius=3)
 
     pygame.display.flip()
+    sleep(1 / 60)

@@ -1,40 +1,27 @@
-from itertools import combinations
-from math import cos, sin, tau
+from __future__ import annotations
 from softbodies import Softbody, Node, Link, Point
 
 
-class HollowPolygon(Softbody):
-    def __init__(self, center: Point, major_radius: float, total_mass: float, number_sides: int, stiffness: float, dampening: float) -> None:
+class Tower(Softbody):
+    def __init__(self, mass: float, position: Point, size: tuple[float, float], grid: tuple[int, int]) -> None:
         nodes = []
-        for n in range(number_sides):
-            angle = tau * (n / number_sides)
-            offset = Point(major_radius * cos(angle), major_radius * sin(angle))
-            nodes.append(Node(mass=total_mass / number_sides,
-                              position=center + offset))
-
+        for x in range(grid[0] + 1):
+            nodes.append([])
+            for y in range(grid[1] + 1):
+                nodes[x].append(Node(mass=mass / ((grid[0] + 1) * (grid[1] + 1)),
+                                     position=Point(position.x + size[0] * (x / grid[0]),
+                                                    position.y + size[1] * (y / grid[1]))))
         links = []
-        for n in range(number_sides):
-            links.append(Link(nodes=(nodes[n], nodes[(n + 1) % number_sides]),
-                              stiffness=stiffness,
-                              dampening=dampening))
-        super().__init__(nodes, links)
-
-
-class CrazyPolygon(Softbody):
-    def __init__(self, center: Point, major_radius: float, total_mass: float, number_sides: int, stiffness: float, dampening: float):
-        nodes = []
-        for n in range(number_sides):
-            angle = tau * (n / number_sides)
-            offset = Point(major_radius * cos(angle), major_radius * sin(angle))
-            nodes.append(Node(mass=total_mass / number_sides,
-                              position=center + offset))
-
-        links = []
-        for pair_nodes in combinations(nodes, 2):
-            links.append(Link(nodes=pair_nodes,
-                              stiffness=stiffness,
-                              dampening=dampening))
-        super().__init__(nodes, links)
-
-
-a = CrazyPolygon(center=Point(0, 0), major_radius=1, total_mass=100, number_sides=10, stiffness=25, dampening=1)
+        for x in range(grid[0]):
+            for y in range(grid[1] + 1):
+                links.append(Link(nodes=(nodes[x][y], nodes[x + 1][y]), stiffness=5000, dampening=0))
+        for x in range(grid[0] + 1):
+            for y in range(grid[1]):
+                links.append(Link(nodes=(nodes[x][y], nodes[x][y + 1]), stiffness=5000, dampening=0))
+        for x in range(grid[0]):
+            for y in range(grid[1]):
+                links.append(Link(nodes=(nodes[x][y], nodes[x + 1][y + 1]), stiffness=5000, dampening=0))
+        for x in range(grid[0]):
+            for y in range(grid[1]):
+                links.append(Link(nodes=(nodes[x + 1][y], nodes[x][y + 1]), stiffness=5000, dampening=0))
+        super().__init__(nodes=[node for buffer in nodes for node in buffer], links=links)
