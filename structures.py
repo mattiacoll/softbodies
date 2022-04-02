@@ -4,7 +4,14 @@ from random import random
 from softbodies import Softbody, Node, Link, Point
 
 
-class Tower(Softbody):
+class Structure(Softbody):
+    def __init__(self, nodes: list[Node], links: list[Link]) -> None:
+        super().__init__(nodes, links)
+
+
+
+
+class Tower(Structure):
     def __init__(self, position: Point, size: tuple[float, float], grid: tuple[int, int], mass: float, stiffness: float,
                  dampening: float) -> None:
         nodes = []
@@ -30,7 +37,7 @@ class Tower(Softbody):
         super().__init__(nodes=[node for buffer in nodes for node in buffer], links=links)
 
 
-class Pyramid(Softbody):
+class Pyramid(Structure):
     def __init__(self, position: Point, size: tuple[float, float], grid: int, mass: float, stiffness: float,
                  dampening: float) -> None:
         nodes = []
@@ -57,7 +64,7 @@ class Pyramid(Softbody):
         super().__init__(nodes=[node for buffer in nodes for node in buffer], links=links)
 
 
-class Blob(Softbody):
+class Blob(Structure):
     def __init__(self, position: Point, size: float) -> None:
         nodes = []
         for n in range(30):

@@ -23,15 +23,10 @@ class Softbody:
             center_mass += node.mass * node.position
         return center_mass
 
-    def apply_link_forces(self) -> None:
-        """Apply the force of each link on each of the corresponding nodes."""
-        for link in self.links:
-            link.apply_force()
-
-    def iterate(self, delta_time) -> None:
+    def iterate(self, time) -> None:
         """Integrate the position and velocity of each node with Euler's method."""
         for node in self.nodes:
-            node.iterate(delta_time)
+            node.iterate(time)
 
 
 class Node:
@@ -47,15 +42,10 @@ class Node:
         self.velocity = Point(0, 0)
         self.force = Point(0, 0)
 
-    def apply_force(self, force: Point) -> None:
-        """Add a singular force to the node."""
-        self.force += force
-
-    def iterate(self, delta_time: float) -> None:
+    def iterate(self, time: float) -> None:
         """Integrate the position and velocity with Euler's method."""
-        self.velocity += (self.force / self.mass) * delta_time
-        self.position += self.velocity * delta_time
-        self.force.set(Point(0, 0))
+        self.velocity += (self.force / self.mass) * time
+        self.position += self.velocity * time
 
 
 class Link:
@@ -98,8 +88,10 @@ class Link:
         """Get the spring force expansion/contraction (positive/negative)."""
         return self.get_stiffness_force() + self.get_dampening_force()
 
-    def apply_force(self) -> None:
-        """Apply the pair of opposite facing spring forces on the pair of nodes."""
-        self.nodes[0].apply_force(self.get_force() * ((self.nodes[0].position - self.nodes[1].position) / self.get_length()))
-        self.nodes[1].apply_force(self.get_force() * ((self.nodes[1].position - self.nodes[0].position) / self.get_length()))
+    def iterate(self, time: float) -> None:
+        self.nodes[0].iterate(time)
+        self.nodes[1].iterate(time)
 
+
+link = Link(nodes=(Node(mass=1, position=Point(0, 0)), Node(mass=1, position=Point(5, 0))), stiffness=1, dampening=0, resting_length=0.5)
+print(link.get_stiffness_force())
