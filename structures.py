@@ -1,5 +1,6 @@
 from __future__ import annotations
-import numpy as np
+from math import cos, sin, tau, sqrt
+from random import random
 from softbodies import Softbody, Node, Link, Point
 
 
@@ -54,3 +55,22 @@ class Pyramid(Softbody):
                 links.append(Link(nodes=(nodes[y][x + 1], nodes[y + 1][x]), stiffness=stiffness, dampening=dampening))
 
         super().__init__(nodes=[node for buffer in nodes for node in buffer], links=links)
+
+
+class Blob(Softbody):
+    def __init__(self, position: Point, size: float) -> None:
+        nodes = []
+        for n in range(30):
+            radius = (size / 2) * sqrt(random())
+            angle = tau * random()
+            nodes.append(Node(mass=1, position=Point(position.x + radius * cos(angle), position.y + radius * sin(angle))))
+        links = []
+        for n1 in range(30):
+            for n2 in range(n1 + 1, 30):
+                node_1 = nodes[n1]
+                node_2 = nodes[n2]
+
+                if Point.dist(node_1.position, node_2.position) <= size / 3:
+                    links.append(Link(nodes=(node_1, node_2), stiffness=200, dampening=0))
+
+        super().__init__(nodes=nodes, links=links)
