@@ -15,7 +15,7 @@ links = [Link(nodes=(nodes[0], nodes[1]), stiffness=100, dampening=1),
          Link(nodes=(nodes[0], nodes[2]), stiffness=100, dampening=1, resting_length=2),
          Link(nodes=(nodes[1], nodes[3]), stiffness=100, dampening=1, resting_length=2)]
 softbody = Softbody(nodes=nodes, links=links)
-softbody = Tower(mass=100, position=Point(0, 0), size=(2, 2), grid=(2, 2))
+softbody = Tower(position=Point(0, 0), size=(2, 2), grid=(2, 2), mass=1, stiffness=50, dampening=0)
 
 
 camera_position = Point(0, 0)
@@ -50,7 +50,7 @@ while running:
         node.iterate(delta_time=0.01)
 
 
-    screen.fill((255, 255, 255))
+    screen.fill((0, 0, 0))
 
     for link in softbody.links:
         pygame.draw.line(screen, color=(0, 0, 255), start_pos=transformed(link.nodes[0].position), end_pos=transformed(link.nodes[1].position), width=3)
@@ -59,4 +59,4 @@ while running:
         pygame.draw.circle(screen, color=(255, 0, 0), center=transformed(node.position), radius=3)
 
     pygame.display.flip()
-    sleep(1 / 60)
+    sleep(1 / 30)
