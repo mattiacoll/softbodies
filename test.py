@@ -15,10 +15,10 @@ links = [Link(nodes=(nodes[0], nodes[1]), stiffness=100, dampening=1),
          Link(nodes=(nodes[0], nodes[2]), stiffness=100, dampening=1, resting_length=2),
          Link(nodes=(nodes[1], nodes[3]), stiffness=100, dampening=1, resting_length=2)]
 #softbody = Softbody(nodes=nodes, links=links)
-softbody = Tower(position=Point(0, 0), size=(3, 7), grid=(3, 7), mass=100, stiffness=2000, dampening=0.1)
+softbody = Tower(position=Point(0, 0), size=(1, 7), grid=(1, 7), mass=100, stiffness=5000, dampening=10)
 #softbody = Pyramid(position=Point(0, 0), size=(2, 2), grid=3, mass=1, stiffness=100, dampening=0)
 #softbody = Blob(position=Point(0, 0), size=2)
-camera_position = Point(0, 0)
+camera_position = Point(0, -2)
 camera_zoom = 0.1
 
 
@@ -51,9 +51,6 @@ while running:
                 force * (link.nodes[1].position - link.nodes[0].position) / Point.dist(link.nodes[0].position,
                                                                                        link.nodes[1].position))
         softbody.nodes[0].force.set(Point(0, 0))
-        softbody.nodes[8].force.set(Point(0, 0))
-        softbody.nodes[16].force.set(Point(0, 0))
-        softbody.nodes[24].force.add(Point(softbody.nodes[24].mass * g * 2, softbody.nodes[24].mass * g * 5))
         softbody.iterate(time=0.005)
 
     screen.fill((0, 0, 0))
