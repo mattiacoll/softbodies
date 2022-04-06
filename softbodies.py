@@ -91,7 +91,3 @@ class Link:
     def iterate(self, time: float) -> None:
         self.nodes[0].iterate(time)
         self.nodes[1].iterate(time)
-
-
-link = Link(nodes=(Node(mass=1, position=Point(0, 0)), Node(mass=1, position=Point(5, 0))), stiffness=1, dampening=0, resting_length=0.5)
-print(link.get_stiffness_force())
