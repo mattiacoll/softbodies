@@ -1,0 +1,7 @@
+commonmark==0.9.1
+numpy==1.22.3
+pycairo==1.21.0
+pygame==2.1.2
+Pygments==2.11.2
+rich==12.2.0
+scipy==1.8.0
