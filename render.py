@@ -2,27 +2,29 @@ from math import tau
 from scipy.constants import g
 import cairo
 import ffmpeg
-from structures import Tower
+from structures import tower
 from points import Point
 
-softbody = Tower(position=Point(0, 0), size=(1, 1), grid=(4, 4), mass=1, stiffness=100, dampening=0)
+softbody = tower(position=Point(0, 0), size=(1, 1), grid=(4, 4), mass=1, stiffness=100, dampening=0)
+nodes, links = softbody
 
 camera_position = Point(0, 0)
 camera_zoom = 0.5
 
 for i in range(1000):
-    for node in softbody.nodes:
+    for node in nodes:
         node.force.set(Point(0, -node.mass * g))
-    for link in softbody.links:
+    for link in links:
         link.nodes[0].force.add(link.get_force() * (link.nodes[0].position - link.nodes[1].position) / Point.dist(link.nodes[0].position, link.nodes[1].position))
         link.nodes[1].force.add(link.get_force() * (link.nodes[1].position - link.nodes[0].position) / Point.dist(link.nodes[0].position, link.nodes[1].position))
-    softbody.nodes[0].force.set(Point(0, 0))
-    softbody.iterate(time=0.005)
+    nodes[0].force.set(Point(0, 0))
+    for node in nodes:
+        node.iterate(time=0.005)
 
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 1000, 1000)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 500, 500)
     ctx = cairo.Context(surface)
 
-    ctx.scale(1000, 1000)
+    ctx.scale(500, 500)
     ctx.rectangle(0, 0, 1, 1)
     ctx.set_source_rgb(1, 0.94, 0.79)
     ctx.fill()
@@ -31,7 +33,7 @@ for i in range(1000):
     ctx.translate(-camera_position.x, -camera_position.y)
     ctx.scale(camera_zoom, camera_zoom)
 
-    for link in softbody.links:
+    for link in links:
         ctx.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
         ctx.line_to(link.nodes[1].position.x, link.nodes[1].position.y)
         ctx.set_source_rgb(0, 0, 0)
@@ -39,7 +41,7 @@ for i in range(1000):
         ctx.set_line_cap(cairo.LINE_CAP_ROUND)
         ctx.stroke()
 
-    for node in softbody.nodes:
+    for node in nodes:
         ctx.arc(node.position.x, node.position.y, 0.03, 0, tau)
         ctx.set_source_rgb(1, 1, 1)
         ctx.fill_preserve()
