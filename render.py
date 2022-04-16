@@ -1,28 +1,28 @@
-from os import mkdir
 from math import tau
 from scipy.constants import g
 import cairo
+import ffmpeg
 from structures import Tower
 from points import Point
 
-softbody = Tower(position=Point(0, 0), size=(1, 1), grid=(2, 2), mass=1, stiffness=1, dampening=0)
+softbody = Tower(position=Point(0, 0), size=(1, 1), grid=(4, 4), mass=1, stiffness=100, dampening=0)
 
 camera_position = Point(0, 0)
 camera_zoom = 0.5
 
-mkdir("renders")
-for i in range(100):
+for i in range(1000):
     for node in softbody.nodes:
         node.force.set(Point(0, -node.mass * g))
     for link in softbody.links:
         link.nodes[0].force.add(link.get_force() * (link.nodes[0].position - link.nodes[1].position) / Point.dist(link.nodes[0].position, link.nodes[1].position))
         link.nodes[1].force.add(link.get_force() * (link.nodes[1].position - link.nodes[0].position) / Point.dist(link.nodes[0].position, link.nodes[1].position))
+    softbody.nodes[0].force.set(Point(0, 0))
     softbody.iterate(time=0.005)
 
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 256, 256)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 1000, 1000)
     ctx = cairo.Context(surface)
 
-    ctx.scale(256, 256)
+    ctx.scale(1000, 1000)
     ctx.rectangle(0, 0, 1, 1)
     ctx.set_source_rgb(1, 0.94, 0.79)
     ctx.fill()
@@ -47,4 +47,6 @@ for i in range(100):
         ctx.set_line_width(0.02)
         ctx.stroke()
 
-    surface.write_to_png(f"renders/render_{i}.png")
+    surface.write_to_png(f"output/{i:06d}.png")
+
+ffmpeg.input("output/%06d.png", pattern_type="sequence", framerate=60).output("output.mp4").run()

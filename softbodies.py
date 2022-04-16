@@ -49,7 +49,7 @@ class Node:
 
 
 class Link:
-    """A massless Hookean spring that features a stiffness force and a spring force."""
+    """A massless Hookean spring that features a pair of spring stiffness and dampening forces."""
     nodes: tuple[Node, Node]
     resting_length: float
     stiffness: float
