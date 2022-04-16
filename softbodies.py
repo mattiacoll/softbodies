@@ -2,33 +2,6 @@ from __future__ import annotations
 from points import Point
 
 
-class Softbody:
-    """A spring-network type softbody consisting of nodes (point masses) and links (Hookean springs)."""
-    nodes: list[Node]
-    links: list[Link]
-
-    def __init__(self, nodes: list[Node], links: list[Link]) -> None:
-        self.nodes = nodes
-        self.links = links
-
-    def get_total_mass(self) -> float:
-        total_mass = 0
-        for node in self.nodes:
-            total_mass += node.mass
-        return total_mass
-
-    def get_center_mass(self) -> Point:
-        center_mass = Point(0, 0)
-        for node in self.nodes:
-            center_mass += node.mass * node.position
-        return center_mass
-
-    def iterate(self, time) -> None:
-        """Integrate the position and velocity of each node with Euler's method."""
-        for node in self.nodes:
-            node.iterate(time)
-
-
 class Node:
     """A point mass particle that implements Euler integration."""
     mass: float
