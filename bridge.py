@@ -3,7 +3,7 @@ from math import sqrt
 import numpy as np
 from scipy.constants import g
 import pygame
-from points import Point
+from vectors import Vector
 
 
 class System:
@@ -24,12 +24,12 @@ class System:
 
 class Node:
     mass: float
-    position: Point
-    velocity: Point
-    acceleration: Point
-    force: Point
+    position: Vector
+    velocity: Vector
+    acceleration: Vector
+    force: Vector
 
-    def __init__(self, mass: float, position: Point, velocity: Point, acceleration: Point, force: Point) -> None:
+    def __init__(self, mass: float, position: Vector, velocity: Vector, acceleration: Vector, force: Vector) -> None:
         self.mass = mass
         self.position = position
         self.velocity = velocity
@@ -67,7 +67,7 @@ class Link:
     def __repr__(self) -> str:
         return f"{self.nodes[0].position} <- Link -> {self.nodes[1].position}"
 
-    def get_unit_vector(self) -> Point:
+    def get_unit_vector(self) -> Vector:
         return (self.nodes[0].position - self.nodes[1].position) / self.resting_distance
 
     def get_displacement(self) -> float:
@@ -84,7 +84,7 @@ class Link:
 
     def update_actual_distance(self) -> float:
         previous_distance = self.actual_distance
-        self.actual_distance = Point.dist(self.nodes[0].position, self.nodes[1].position)
+        self.actual_distance = Vector.dist(self.nodes[0].position, self.nodes[1].position)
         return previous_distance
 
     def update_actual_speed(self, delta_time: float) -> None:
@@ -96,20 +96,20 @@ class Link:
         self.nodes[1].force -= self.get_spring_force() * self.get_unit_vector()
 
 
-nodes = [Node(mass=10, position=Point(0, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(1, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(2, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(3, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(4, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(5, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(6, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(7, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(8, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(9, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(10, 0), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
+nodes = [Node(mass=10, position=Vector(0, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(1, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(2, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(3, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(4, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(5, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(6, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(7, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(8, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(9, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(10, 0), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
 
-         Node(mass=10, position=Point(0, -2), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0)),
-         Node(mass=10, position=Point(10, -2), velocity=Point(0, 0), acceleration=Point(0, 0), force=Point(0, 0))]
+         Node(mass=10, position=Vector(0, -2), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0)),
+         Node(mass=10, position=Vector(10, -2), velocity=Vector(0, 0), acceleration=Vector(0, 0), force=Vector(0, 0))]
 
 links = [Link(nodes=(nodes[0], nodes[1]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
          Link(nodes=(nodes[1], nodes[2]), resting_distance=1, actual_distance=1, stiffness=2000, dampening=100, actual_speed=1),
@@ -134,21 +134,21 @@ delta_time = 0.001
 
 
 
-view_minimum = Point(-2, -6)
-view_maximum = Point(12, 8)
+view_minimum = Vector(-2, -6)
+view_maximum = Vector(12, 8)
 
 pygame.init()
 screen = pygame.display.set_mode([500, 500])
 
-def transformed(point: Point) -> Point:
-    return Point(500 * (point.x - view_minimum.x) / (view_maximum.x - view_minimum.x),
-                 500 * (1 - (point.y - view_minimum.y) / (view_maximum.y - view_minimum.y)))
+def transformed(point: Vector) -> Vector:
+    return Vector(500 * (point.x - view_minimum.x) / (view_maximum.x - view_minimum.x),
+                  500 * (1 - (point.y - view_minimum.y) / (view_maximum.y - view_minimum.y)))
 
 running = True
 
 for i in range(iterations):
     for node in system.nodes:
-        node.force.set(Point(0, 0, 0))
+        node.force.set(Vector(0, 0, 0))
 
     for node in system.nodes:
         node.force.y -= node.mass * g
@@ -160,10 +160,10 @@ for i in range(iterations):
     for node in system.nodes:
         node.iterate(delta_time)
 
-    system.nodes[0].position.set(Point(0, 0))
-    system.nodes[10].position.set(Point(10, 0))
-    system.nodes[11].position.set(Point(0, -2))
-    system.nodes[12].position.set(Point(10, -2))
+    system.nodes[0].position.set(Vector(0, 0))
+    system.nodes[10].position.set(Vector(10, 0))
+    system.nodes[11].position.set(Vector(0, -2))
+    system.nodes[12].position.set(Vector(10, -2))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

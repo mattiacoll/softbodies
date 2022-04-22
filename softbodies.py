@@ -1,19 +1,19 @@
 from __future__ import annotations
-from points import Point
+from vectors import Vector
 
 
 class Node:
     """A point mass particle that implements Euler integration."""
     mass: float
-    position: Point
-    velocity: Point
-    force: Point
+    position: Vector
+    velocity: Vector
+    force: Vector
 
-    def __init__(self, mass: float, position: Point) -> None:
+    def __init__(self, mass: float, position: Vector) -> None:
         self.mass = mass
         self.position = position
-        self.velocity = Point(0, 0)
-        self.force = Point(0, 0)
+        self.velocity = Vector(0, 0)
+        self.force = Vector(0, 0)
 
     def iterate(self, time: float) -> None:
         """Integrate the position and velocity with Euler's method."""
@@ -31,7 +31,7 @@ class Link:
     def __init__(self, nodes: tuple[Node, Node], stiffness: float, dampening: float, resting_length: float = None) -> None:
         self.nodes = nodes
         if resting_length is None:
-            self.resting_length = Point.dist(nodes[0].position, nodes[1].position)
+            self.resting_length = Vector.dist(nodes[0].position, nodes[1].position)
         else:
             self.resting_length = resting_length
         self.stiffness = stiffness
@@ -39,11 +39,11 @@ class Link:
 
     def get_length(self) -> float:
         """Get the momentary length of the link."""
-        return Point.dist(self.nodes[0].position, self.nodes[1].position)
+        return Vector.dist(self.nodes[0].position, self.nodes[1].position)
 
     def get_speed(self) -> float:
         """Get the speed of the expansion/contraction of the link (positive/negative)."""
-        return Point.dot(self.nodes[0].position - self.nodes[1].position, self.nodes[0].velocity - self.nodes[1].velocity) / self.get_length()
+        return Vector.dot(self.nodes[0].position - self.nodes[1].position, self.nodes[0].velocity - self.nodes[1].velocity) / self.get_length()
 
     def get_displacement(self) -> float:
         """Get the expansion/contraction of the link from its resting configuration (positive/negative)."""
