@@ -7,8 +7,8 @@ from structures import tower, pyramid, blob
 from vectors import Vector
 
 
-softbody = tower(position=Vector(0, 0), size=(1, 1), grid=(5, 5), mass=1, stiffness=100, dampening=1)
-# softbody = pyramid(position=Point(0, 0), size=(1, 1), grid=4, mass=1, stiffness=100, dampening=0)
+softbody = tower(position=Vector(0, 0), width=1, height=1, grid=(5, 5), mass=1, stiffness=100, dampening=1)
+softbody = pyramid(position=Vector(0, 0), width=1, grid=6, mass=1, stiffness=100, dampening=1)
 nodes, links = softbody
 
 camera_position = Vector(0, 0)
@@ -16,7 +16,7 @@ camera_zoom = 0.5
 
 
 
-for i in range(500):
+for i in range(100):
     for node in nodes:
         node.force.set(Vector(0, -node.mass * g))
     for link in links:
@@ -35,8 +35,8 @@ for i in range(500):
     ctx.fill()
     ctx.translate(0.5, 0.5)
     ctx.scale(1, -1)
-    ctx.translate(-camera_position.x, -camera_position.y)
     ctx.scale(camera_zoom, camera_zoom)
+    ctx.translate(-camera_position.x, -camera_position.y)
 
     for link in links:
         ctx.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
