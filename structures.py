@@ -27,7 +27,8 @@ def tower(position: Vector, width: float, height: float, grid: tuple[int, int], 
             node_mass = mass / ((grid[0] + 1) * (grid[1] + 1))
             node_position = Vector(position.x + width * (x / grid[0] - 0.5),
                                    position.y + height * (y / grid[1] - 0.5))
-            nodes_mesh[x].append(Node(node_mass, node_position))
+            node = Node(node_mass, node_position)
+            nodes_mesh[x].append(node)
     links = []
     for x in range(grid[0]):
         for y in range(grid[1] + 1):
@@ -53,7 +54,8 @@ def pyramid(position: Vector, width: float, grid: int, mass: float, stiffness: f
             node_mass = mass / ((grid + 1) * (grid + 2) / 2)
             node_position = Vector(position.x + width * ((x + 0.5 * y) / grid - 0.5),
                                    position.y + height * (y / grid - 0.5))
-            nodes_mesh[y].append(Node(node_mass, node_position))
+            node = Node(node_mass, node_position)
+            nodes_mesh[y].append(node)
     links = []
     for y in range(grid):
         for x in range(grid - y):
@@ -62,6 +64,31 @@ def pyramid(position: Vector, width: float, grid: int, mass: float, stiffness: f
             links.append(Link((nodes_mesh[y][-x - 1], nodes_mesh[y + 1][-x - 1]), stiffness, dampening))
     nodes = [node for buffer in nodes_mesh for node in buffer]
     softbody = (nodes, links)
-    return structure(softbody, position, rotation=0, scale=1)
+    return structure(softbody, position=Vector(0, 0), rotation=0, scale=1)
 
 
+def wheel(position: Vector, radius: float, rings: int, slices: int, mass: float, stiffness: float, dampening: float) -> Softbody:
+    node_mass = mass / (rings * slices + 1)
+    nodes_mesh = [[Node(node_mass, position.copy())]]
+    for r in range(1, rings + 1):
+        nodes_mesh.append([])
+        for s in range(slices):
+            ang = (s / slices) * tau
+            rad = (r / rings) * radius
+            node_position = Vector(position.x + rad * cos(ang),
+                                   position.y + rad * sin(ang))
+            node = Node(node_mass, node_position)
+            nodes_mesh[r].append(node)
+    links = []
+    for r in range(1, rings + 1):
+        for s in range(slices):
+            links.append(Link((nodes_mesh[r][s], nodes_mesh[r][(s + 1) % slices]), stiffness, dampening))
+    for s in range(slices):
+        links.append(Link((nodes_mesh[0][0], nodes_mesh[1][s]), stiffness, dampening))
+    for r in range(1, rings):
+        for s in range(slices):
+            links.append(Link((nodes_mesh[r][s], nodes_mesh[r + 1][s]), stiffness, dampening))
+
+    nodes = [node for buffer in nodes_mesh for node in buffer]
+    softbody = (nodes, links)
+    return structure(softbody, position=Vector(0, 0), scale=1, rotation=0)

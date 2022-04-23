@@ -3,12 +3,13 @@ from math import tau
 from scipy.constants import g
 import cairo
 import ffmpeg
-from structures import tower, pyramid, blob
+from structures import tower, pyramid, wheel
 from vectors import Vector
 
 
 softbody = tower(position=Vector(0, 0), width=1, height=1, grid=(5, 5), mass=1, stiffness=100, dampening=1)
 softbody = pyramid(position=Vector(0, 0), width=1, grid=6, mass=1, stiffness=100, dampening=1)
+softbody = wheel(position=Vector(0, 0), radius=0.5, rings=3, slices=10, mass=1, stiffness=100, dampening=1)
 nodes, links = softbody
 
 camera_position = Vector(0, 0)
