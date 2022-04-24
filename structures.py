@@ -21,7 +21,8 @@ class Structure:
 
     def scale(self, factor: Vector) -> None:
         for node in self.nodes:
-            node.position *= factor
+            node.position.x *= factor.x
+            node.position.y *= factor.y
 
     def rotate(self, radians: float) -> None:
         for node in self.nodes:

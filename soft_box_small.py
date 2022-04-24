@@ -1,9 +1,10 @@
 from vectors import Vector
-from structures import tower
+from structures import Tower
 from render import render
 
-softbody = tower(position=Vector(0, 0), width=1, height=1, grid=(5, 5), mass=1, stiffness=100, dampening=1)
-nodes, links = softbody
+structure = Tower(position=Vector(0, 0), width=1, height=1, grid=(5, 5), mass=1, stiffness=100, dampening=1)
+nodes = structure.nodes
+links = structure.links
 
 for i in range(100):
     for s in range(5):
@@ -18,4 +19,4 @@ for i in range(100):
         for node in nodes:
             node.iterate(time=0.001)
 
-render(softbody, camera_position=Vector(0, 0), camera_zoom=0.5)
+render(nodes, links, camera_position=Vector(0, 0), camera_zoom=0.5)

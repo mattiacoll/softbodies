@@ -1,13 +1,11 @@
 from math import tau
 from scipy.constants import g
 import cairo
-from structures import Softbody
+from softbodies import Node, Link
 from vectors import Vector
 
 
-def render(softbody: Softbody, camera_position: Vector, camera_zoom: float):
-    nodes, links = softbody
-
+def render(nodes: list[Node], links: list[Link], camera_position: Vector, camera_zoom: float):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 250, 250)
     ctx = cairo.Context(surface)
 
