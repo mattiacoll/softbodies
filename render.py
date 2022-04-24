@@ -7,9 +7,9 @@ from structures import tower, pyramid, wheel
 from vectors import Vector
 
 
-softbody = tower(position=Vector(0, 0), width=1, height=1, grid=(5, 5), mass=1, stiffness=100, dampening=1)
+#softbody = tower(position=Vector(0, 0), width=1, height=1, grid=(10, 10), mass=1, stiffness=100, dampening=1)
 softbody = pyramid(position=Vector(0, 0), width=1, grid=6, mass=1, stiffness=100, dampening=1)
-softbody = wheel(position=Vector(0, 0), radius=0.5, rings=3, slices=10, mass=1, stiffness=100, dampening=1)
+#softbody = wheel(position=Vector(0, 0), radius=0.5, rings=7, slices=10, mass=1, stiffness=400, dampening=1)
 nodes, links = softbody
 
 camera_position = Vector(0, 0)
@@ -17,15 +17,19 @@ camera_zoom = 0.5
 
 
 
-for i in range(100):
-    for node in nodes:
-        node.force.set(Vector(0, -node.mass * g))
-    for link in links:
-        link.nodes[0].force.add(link.get_force() * (link.nodes[0].position - link.nodes[1].position) / Vector.dist(link.nodes[0].position, link.nodes[1].position))
-        link.nodes[1].force.add(link.get_force() * (link.nodes[1].position - link.nodes[0].position) / Vector.dist(link.nodes[0].position, link.nodes[1].position))
-    nodes[0].force.set(Vector(0, 0))
-    for node in nodes:
-        node.iterate(time=0.005)
+for i in range(500):
+    for s in range(5):
+        for node in nodes:
+            node.force.set(Vector(0, -node.mass * g))
+        for link in links:
+            link.nodes[0].force.add(link.get_force() * (link.nodes[0].position - link.nodes[1].position) / Vector.dist(
+                link.nodes[0].position, link.nodes[1].position))
+            link.nodes[1].force.add(link.get_force() * (link.nodes[1].position - link.nodes[0].position) / Vector.dist(
+                link.nodes[0].position, link.nodes[1].position))
+        nodes[0].force.set(Vector(0, 0))
+        for node in nodes:
+            node.iterate(time=0.001)
+        camera_position = 0.95 * camera_position + 0.05 * nodes[17].position
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 250, 250)
     ctx = cairo.Context(surface)
