@@ -1,13 +1,11 @@
 from copy import deepcopy
-from math import pi
 from vectors import Vector
-from structures import Tower
+from structures import Wheel
 from render import render
 
-tower = Tower(position=Vector(0, 0), width=1, height=1, grid=(3, 3), mass=1, stiffness=20, dampening=1)
-tower.rotate(pi / 2)
-nodes = tower.nodes
-links = tower.links
+wheel = Wheel(position=Vector(0, 0), radius=0.5, rings=3, slices=10, mass=1, stiffness=100, dampening=1)
+nodes = wheel.nodes
+links = wheel.links
 
 frames = []
 
@@ -21,13 +19,12 @@ for i in range(100):
             link.nodes[1].force.add(link.get_force() * (link.nodes[1].position - link.nodes[0].position) / Vector.dist(
                 link.nodes[0].position, link.nodes[1].position))
 
-        for node in tower.nodes_mesh[0]:
-            node.force.set(Vector(0, 0))
+        nodes[0].force.set(Vector(0, 0))
 
         for node in nodes:
             node.iterate(time=0.005)
 
-    if i % 20 == 0:
+    if i % 50 == 0:
         frame = deepcopy((nodes, links))
         frames.append(frame)
 

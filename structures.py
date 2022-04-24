@@ -23,6 +23,8 @@ class Structure:
         for node in self.nodes:
             node.position.x *= factor.x
             node.position.y *= factor.y
+        for link in self.links:
+            link.resting_length *= factor.len
 
     def rotate(self, radians: float) -> None:
         for node in self.nodes:

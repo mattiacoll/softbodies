@@ -7,7 +7,7 @@ from softbodies import Node, Link
 from vectors import Vector
 
 
-def render(nodes: list[Node], links: list[Link], camera_position: Vector, camera_zoom: float):
+def render(frames: list[tuple[list[Node], list[Link]]], camera_position: Vector, camera_zoom: float):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 1000, 1000)
     ctx = cairo.Context(surface)
 
@@ -20,21 +20,24 @@ def render(nodes: list[Node], links: list[Link], camera_position: Vector, camera
     ctx.scale(camera_zoom, camera_zoom)
     ctx.translate(-camera_position.x, -camera_position.y)
 
-    for link in links:
-        ctx.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
-        ctx.line_to(link.nodes[1].position.x, link.nodes[1].position.y)
-        ctx.set_source_rgb(0, 0, 0)
-        ctx.set_line_width(0.03 * (link.resting_length / link.get_length()))
-        ctx.set_line_cap(cairo.LINE_CAP_ROUND)
-        ctx.stroke()
-
-    for node in nodes:
-        ctx.arc(node.position.x, node.position.y, 0.03, 0, tau)
-        ctx.set_source_rgb(1, 1, 1)
-        ctx.fill_preserve()
-        ctx.set_source_rgb(0, 0, 0)
-        ctx.set_line_width(0.02)
-        ctx.stroke()
+    for f, frame in enumerate(frames):
+        nodes, links = frame
+        for link in links:
+            ctx.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
+            ctx.line_to(link.nodes[1].position.x, link.nodes[1].position.y)
+            ctx.set_source_rgba(0, 0, 0, 0.1)
+            if f == len(frames) - 1: ctx.set_source_rgb(0, 0, 0)
+            ctx.set_line_width(0.03 * (link.resting_length / link.get_length()))
+            ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+            ctx.stroke()
+        if f != len(frames) - 1: continue
+        for node in nodes:
+            ctx.arc(node.position.x, node.position.y, 0.03, 0, tau)
+            ctx.set_source_rgb(1, 1, 1)
+            ctx.fill_preserve()
+            ctx.set_source_rgba(0, 0, 0, 1)
+            ctx.set_line_width(0.02)
+            ctx.stroke()
 
     raw = surface.get_data().tolist()
     counter = 0
@@ -47,7 +50,7 @@ def render(nodes: list[Node], links: list[Link], camera_position: Vector, camera
             counter += 1
     fig, ax = plt.subplots()
     ax.imshow(image)
-    ax.set_title("Propagated paths from transmitter to receiver")
+    ax.set_title("Softbody simulation sketch")
     plt.show()
 
 if __name__ == "__main__":
