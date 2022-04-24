@@ -33,6 +33,8 @@ class Structure:
 
 
 class Tower(Structure):
+    nodes_mesh: list[list[Node]]
+
     def __init__(self, position: Vector, width: float, height: float, grid: tuple[int, int], mass: float, stiffness: float, dampening: float) -> None:
         nodes_mesh = []
         for x in range(grid[0] + 1):
@@ -42,6 +44,7 @@ class Tower(Structure):
                 node_position = Vector(x / grid[0], y / grid[1])
                 node = Node(node_mass, node_position)
                 nodes_mesh[x].append(node)
+        self.nodes_mesh = nodes_mesh
         links = []
         for x in range(grid[0]):
             for y in range(grid[1] + 1):

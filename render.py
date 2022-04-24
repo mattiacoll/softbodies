@@ -1,17 +1,19 @@
 from math import tau
-from scipy.constants import g
+from time import sleep
 import cairo
+import matplotlib.pyplot as plt
+import numpy as np
 from softbodies import Node, Link
 from vectors import Vector
 
 
 def render(nodes: list[Node], links: list[Link], camera_position: Vector, camera_zoom: float):
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 250, 250)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 1000, 1000)
     ctx = cairo.Context(surface)
 
-    ctx.scale(250, 250)
+    ctx.scale(1000, 1000)
     ctx.rectangle(0, 0, 1, 1)
-    ctx.set_source_rgb(1, 0.94, 0.79)
+    ctx.set_source_rgb(1, 1, 1)
     ctx.fill()
     ctx.translate(0.5, 0.5)
     ctx.scale(1, -1)
@@ -34,4 +36,20 @@ def render(nodes: list[Node], links: list[Link], camera_position: Vector, camera
         ctx.set_line_width(0.02)
         ctx.stroke()
 
-    surface.write_to_png(f"render.png")
+    raw = surface.get_data().tolist()
+    counter = 0
+    image = np.empty((1000, 1000, 3), dtype=np.uint8)
+    for x in range(1000):
+        for y in range(1000):
+            for c in range(3):
+                image[x][y][2 - c] = raw[counter]
+                counter += 1
+            counter += 1
+    fig, ax = plt.subplots()
+    ax.imshow(image)
+    ax.set_title("Propagated paths from transmitter to receiver")
+    plt.show()
+
+if __name__ == "__main__":
+    print("This file is a utility program that does not work on its own.")
+    sleep(5)
