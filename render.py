@@ -1,35 +1,12 @@
-import os
 from math import tau
 from scipy.constants import g
 import cairo
-import ffmpeg
-from structures import tower, pyramid, wheel
+from structures import Softbody
 from vectors import Vector
 
 
-#softbody = tower(position=Vector(0, 0), width=1, height=1, grid=(10, 10), mass=1, stiffness=100, dampening=1)
-softbody = pyramid(position=Vector(0, 0), width=1, grid=6, mass=1, stiffness=100, dampening=1)
-#softbody = wheel(position=Vector(0, 0), radius=0.5, rings=7, slices=10, mass=1, stiffness=400, dampening=1)
-nodes, links = softbody
-
-camera_position = Vector(0, 0)
-camera_zoom = 0.5
-
-
-
-for i in range(500):
-    for s in range(5):
-        for node in nodes:
-            node.force.set(Vector(0, -node.mass * g))
-        for link in links:
-            link.nodes[0].force.add(link.get_force() * (link.nodes[0].position - link.nodes[1].position) / Vector.dist(
-                link.nodes[0].position, link.nodes[1].position))
-            link.nodes[1].force.add(link.get_force() * (link.nodes[1].position - link.nodes[0].position) / Vector.dist(
-                link.nodes[0].position, link.nodes[1].position))
-        nodes[0].force.set(Vector(0, 0))
-        for node in nodes:
-            node.iterate(time=0.001)
-        camera_position = 0.95 * camera_position + 0.05 * nodes[17].position
+def render(softbody: Softbody, camera_position: Vector, camera_zoom: float):
+    nodes, links = softbody
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 250, 250)
     ctx = cairo.Context(surface)
@@ -59,9 +36,4 @@ for i in range(500):
         ctx.set_line_width(0.02)
         ctx.stroke()
 
-    surface.write_to_png(f"output/{i:06d}.png")
-
-
-ffmpeg.input("output/%06d.png", pattern_type="sequence", framerate=60).output("output.mp4").run(overwrite_output=True)
-for png in os.scandir("output"):
-    os.remove(png)
+    surface.write_to_png(f"render.png")
