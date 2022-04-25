@@ -21,7 +21,7 @@ def scale(softbody: Softbody, factor: float, center: Vector = None) -> None:
     for node in nodes:
         node.position *= factor
     for link in links:
-        link.resting_length *= factor
+        link.length_natural *= factor
     translate(softbody, center)
 
 
