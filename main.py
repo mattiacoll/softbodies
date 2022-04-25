@@ -6,14 +6,16 @@ from structures import tower, pyramid, wheel, translate, scale, rotate
 from vectors import Vector
 
 
-# softbody = tower(position=Vector(0, 0.5), width=0.5, height=0.5, grid=(5, 5), mass=0.1, stiffness=50, dampening=1)
-# softbody = pyramid(position=Vector(0, 0.5), width=0.5, grid=6, mass=0.1, stiffness=100, dampening=1)
-softbody = wheel(position=Vector(0, 0.5), radius=0.25, rings=3, slices=10, mass=0.1, stiffness=100, dampening=1)
-# rotate(softbody, rotation=pi / 6, center=Vector(0, 1))
+softbody = tower(position=Vector(0.5, 0.5), width=0.5, height=0.5, grid=(5, 5), mass=0.1, stiffness=50, dampening=1)
+# softbody = pyramid(position=Vector(0.5, 0.6), width=0.3, grid=6, mass=0.1, stiffness=100, dampening=1)
+# softbody = wheel(position=Vector(0, 0.5), radius=0.25, rings=3, slices=10, mass=0.1, stiffness=100, dampening=1)
+rotate(softbody, rotation=pi / 6, center=Vector(0.5, 0.5))
 nodes, links = softbody
 
+for node in nodes:
+    node.velocity.x += 2
 
-camera_position = Vector(0, 0.2)
+camera_position = Vector(0.5, 0.5)
 camera_zoom = 1
 
 
@@ -29,16 +31,22 @@ for i in range(500):
                 link.nodes[0].position, link.nodes[1].position))
 
         for node in nodes:
+            if node.position.x < 0:
+                node.force.x += 500 * abs(node.position.x)
+            if node.position.x > 1:
+                node.force.x -= 500 * abs(1 - node.position.x)
             if node.position.y < 0:
-                node.force.y -= 500 * node.position.y
+                node.force.y += 500 * abs(node.position.y)
+            if node.position.y > 1:
+                node.force.y -= 500 * abs(1 - node.position.y)
 
         for node in nodes:
             node.integrate(time=0.0005)
 
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 250, 250)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 500, 500)
     context = cairo.Context(surface)
 
-    context.scale(250, 250)
+    context.scale(500, 500)
     context.rectangle(0, 0, 1, 1)
     context.set_source_rgb(1, 0.94, 0.79)
     context.fill()
