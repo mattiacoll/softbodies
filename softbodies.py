@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Callable
 from vectors import Vector
 
 
@@ -15,9 +16,10 @@ class Node:
         self.velocity = Vector(0, 0)
         self.force = Vector(0, 0)
 
-    def iterate(self, time: float) -> None:
+    def integrate(self, time: float) -> None:
         """Integrate the position and velocity with Euler's method."""
-        self.velocity += (self.force / self.mass) * time
+        acceleration = self.force / self.mass
+        self.velocity += acceleration * time
         self.position += self.velocity * time
 
 
@@ -61,6 +63,6 @@ class Link:
         """Get the spring force expansion/contraction (positive/negative)."""
         return self.get_stiffness_force() + self.get_dampening_force()
 
-    def iterate(self, time: float) -> None:
-        self.nodes[0].iterate(time)
-        self.nodes[1].iterate(time)
+    def integrate(self, time: float) -> None:
+        self.nodes[0].integrate(time)
+        self.nodes[1].integrate(time)

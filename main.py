@@ -28,8 +28,7 @@ for i in range(500):
                 link.nodes[0].position, link.nodes[1].position))
         nodes[0].force.set(Vector(0, 0))
         for node in nodes:
-            node.iterate(time=0.001)
-        camera_position = 0.95 * camera_position + 0.05 * nodes[17].position
+            node.integrate(time=0.001)
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 250, 250)
     ctx = cairo.Context(surface)
