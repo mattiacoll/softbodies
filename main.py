@@ -1,26 +1,30 @@
 import os
 from math import pi, tau
+from random import random
 import cairo
 import ffmpeg
 from structures import tower, pyramid, wheel, translate, scale, rotate
 from vectors import Vector
 
 
-softbody = tower(position=Vector(0.5, 0.7), width=0.5, height=0.5, grid=(5, 5), mass=0.1, stiffness=50, dampening=1)
+softbody = tower(position=Vector(0.5, 0.5), width=0.3, height=0.3, grid=(3, 3), mass=0.1, stiffness=50, dampening=1)
 # softbody = pyramid(position=Vector(0.5, 0.6), width=0.3, grid=6, mass=0.1, stiffness=100, dampening=1)
 # softbody = wheel(position=Vector(0.5, 0.5), radius=0.25, rings=3, slices=10, mass=0.1, stiffness=200, dampening=1)
 rotate(softbody, rotation=pi / 6, center=Vector(0.5, 0.5))
 nodes, links = softbody
-
+ln = [link.length_natural for link in links]
 for node in nodes:
     node.velocity.x += 0.5
-    node.velocity.y += 8
+    node.velocity.y += 2
 
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
 
 
 for i in range(1000):
+    if i % 30 == 0:
+        for l, link in enumerate(links):
+            link.length_natural = ln[l] * (1 + 0.7 * (random() - 0.5))
     for s in range(10):
         for node in nodes:
             node.force.set(Vector(0, -9.8 * node.mass))
