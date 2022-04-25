@@ -7,16 +7,27 @@ from vectors import Vector
 Softbody = tuple[list[Node], list[Link]]
 
 
-def structure(softbody: Softbody, position: Vector, scale: float, rotation: float) -> Softbody:
+def translate(softbody: Softbody, translation: Vector) -> None:
+    nodes, links = softbody
+    for node in nodes:
+        node.position += translation
+
+
+def scale(softbody: Softbody, factor: float) -> None:
+    nodes, links = softbody
+    for node in nodes:
+        node.position *= factor
+    for link in links:
+        link.resting_length *= factor
+
+
+def rotate(softbody: Softbody, rotation: float) -> None:
     nodes, links = softbody
     for node in nodes:
         node_angle = atan2(node.position.y, node.position.x)
-        node_radius = node.position.dist(Vector(0, 0))
+        node_radius = node.position.len()
         node.position.x = node_radius * cos(node_angle + rotation)
         node.position.y = node_radius * sin(node_angle + rotation)
-        node.position *= scale
-        node.position += position
-    return nodes, links
 
 
 def tower(position: Vector, width: float, height: float, grid: tuple[int, int], mass: float, stiffness: float, dampening: float) -> Softbody:
@@ -42,7 +53,7 @@ def tower(position: Vector, width: float, height: float, grid: tuple[int, int], 
             links.append(Link((nodes_mesh[x + 1][y], nodes_mesh[x][y + 1]), stiffness, dampening))
     nodes = [node for buffer in nodes_mesh for node in buffer]
     softbody = (nodes, links)
-    return structure(softbody, position=Vector(0, 0), scale=1, rotation=0)
+    return softbody
 
 
 def pyramid(position: Vector, width: float, grid: int, mass: float, stiffness: float, dampening: float) -> Softbody:
@@ -64,7 +75,7 @@ def pyramid(position: Vector, width: float, grid: int, mass: float, stiffness: f
             links.append(Link((nodes_mesh[y][-x - 1], nodes_mesh[y + 1][-x - 1]), stiffness, dampening))
     nodes = [node for buffer in nodes_mesh for node in buffer]
     softbody = (nodes, links)
-    return structure(softbody, position=Vector(0, 0), rotation=0, scale=1)
+    return softbody
 
 
 def wheel(position: Vector, radius: float, rings: int, slices: int, mass: float, stiffness: float, dampening: float) -> Softbody:
@@ -91,4 +102,4 @@ def wheel(position: Vector, radius: float, rings: int, slices: int, mass: float,
 
     nodes = [node for buffer in nodes_mesh for node in buffer]
     softbody = (nodes, links)
-    return structure(softbody, position=Vector(0, 0), scale=1, rotation=0)
+    return softbody
