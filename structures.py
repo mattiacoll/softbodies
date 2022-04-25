@@ -13,21 +13,29 @@ def translate(softbody: Softbody, translation: Vector) -> None:
         node.position += translation
 
 
-def scale(softbody: Softbody, factor: float) -> None:
+def scale(softbody: Softbody, factor: float, center: Vector = None) -> None:
     nodes, links = softbody
+    if center is None:
+        center = Vector(0, 0)
+    translate(softbody, -center)
     for node in nodes:
         node.position *= factor
     for link in links:
         link.resting_length *= factor
+    translate(softbody, center)
 
 
-def rotate(softbody: Softbody, rotation: float) -> None:
+def rotate(softbody: Softbody, rotation: float, center: Vector = None) -> None:
     nodes, links = softbody
+    if center is None:
+        center = Vector(0, 0)
+    translate(softbody, -center)
     for node in nodes:
         node_angle = atan2(node.position.y, node.position.x)
         node_radius = node.position.len()
         node.position.x = node_radius * cos(node_angle + rotation)
         node.position.y = node_radius * sin(node_angle + rotation)
+    translate(softbody, center)
 
 
 def tower(position: Vector, width: float, height: float, grid: tuple[int, int], mass: float, stiffness: float, dampening: float) -> Softbody:

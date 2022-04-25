@@ -1,24 +1,25 @@
 import os
-from math import tau
+from math import pi, tau
 import cairo
 import ffmpeg
-from structures import tower, pyramid, wheel
+from structures import tower, pyramid, wheel, translate, scale, rotate
 from vectors import Vector
 
 
-#softbody = tower(position=Vector(0, 0), width=1, height=1, grid=(10, 10), mass=1, stiffness=100, dampening=1)
-softbody = pyramid(position=Vector(0, 1), width=0.5, grid=6, mass=0.1, stiffness=100, dampening=1)
-#softbody = wheel(position=Vector(0, 0), radius=0.5, rings=7, slices=10, mass=1, stiffness=400, dampening=1)
+# softbody = tower(position=Vector(0, 0.5), width=0.5, height=0.5, grid=(5, 5), mass=0.1, stiffness=50, dampening=1)
+# softbody = pyramid(position=Vector(0, 0.5), width=0.5, grid=6, mass=0.1, stiffness=100, dampening=1)
+softbody = wheel(position=Vector(0, 0.5), radius=0.25, rings=3, slices=10, mass=0.1, stiffness=100, dampening=1)
+# rotate(softbody, rotation=pi / 6, center=Vector(0, 1))
 nodes, links = softbody
 
 
-camera_position = Vector(0, 0)
+camera_position = Vector(0, 0.2)
 camera_zoom = 1
 
 
 
 for i in range(500):
-    for s in range(5):
+    for s in range(10):
         for node in nodes:
             node.force.set(Vector(0, -9.8 * node.mass))
         for link in links:
@@ -32,7 +33,7 @@ for i in range(500):
                 node.force.y -= 500 * node.position.y
 
         for node in nodes:
-            node.integrate(time=0.001)
+            node.integrate(time=0.0005)
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 250, 250)
     context = cairo.Context(surface)
