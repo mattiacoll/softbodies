@@ -28,16 +28,16 @@ class Link:
     nodes: tuple[Node, Node]
     stiffness: float
     dampening: float
-    length_natural: float
+    length: float
 
-    def __init__(self, nodes: tuple[Node, Node], stiffness: float, dampening: float, length_natural: float = None) -> None:
+    def __init__(self, nodes: tuple[Node, Node], stiffness: float, dampening: float, length: float = None) -> None:
         self.nodes = nodes
         self.stiffness = stiffness
         self.dampening = dampening
-        if length_natural is None:
-            self.length_natural = Vector.dist(nodes[0].position, nodes[1].position)
+        if length is None:
+            self.length = Vector.dist(nodes[0].position, nodes[1].position)
         else:
-            self.length_natural = length_natural
+            self.length = length
 
     def get_length(self) -> float:
         """Get the momentary length of the link."""
@@ -49,7 +49,7 @@ class Link:
 
     def get_displacement(self) -> float:
         """Get the expansion/contraction of the link from its resting configuration (positive/negative)."""
-        return self.get_length() - self.length_natural
+        return self.get_length() - self.length
 
     def get_stiffness_force(self) -> float:
         """Get the spring stiffness force expansion/contraction (positive/negative)."""

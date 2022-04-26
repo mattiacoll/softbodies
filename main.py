@@ -3,28 +3,29 @@ from math import pi, tau
 from random import random
 import cairo
 import ffmpeg
-from structures import tower, pyramid, wheel, translate, scale, rotate
+from structures import Structure, Tower, Pyramid, Wheel
 from vectors import Vector
 
 
-softbody = tower(position=Vector(0.5, 0.5), width=0.3, height=0.3, grid=(3, 3), mass=0.1, stiffness=50, dampening=1)
-# softbody = pyramid(position=Vector(0.5, 0.6), width=0.3, grid=6, mass=0.1, stiffness=100, dampening=1)
+structure = Tower(width=0.3, height=0.3, grid=(3, 3), mass=0.1, stiffness=50, dampening=1)
+structure.move(Vector(0.5, 0.5))
+# softbody = pyramid(position=Vector(0.5, 0.6), width=0.5, grid=6, mass=0.1, stiffness=100, dampening=1)
 # softbody = wheel(position=Vector(0.5, 0.5), radius=0.25, rings=3, slices=10, mass=0.1, stiffness=200, dampening=1)
-rotate(softbody, rotation=pi / 6, center=Vector(0.5, 0.5))
-nodes, links = softbody
-ln = [link.length_natural for link in links]
+nodes = structure.nodes
+links = structure.links
+
+ln = [link.length for link in links]
 for node in nodes:
-    node.velocity.x += 0.5
-    node.velocity.y += 2
+    node.position.y -= 0.35
 
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
 
 
-for i in range(1000):
+for i in range(100):
     if i % 30 == 0:
         for l, link in enumerate(links):
-            link.length_natural = ln[l] * (1 + 0.7 * (random() - 0.5))
+            link.length = ln[l] * (1 + 0.2 * (random() - 0.5))
     for s in range(10):
         for node in nodes:
             node.force.set(Vector(0, -9.8 * node.mass))
@@ -68,7 +69,7 @@ for i in range(1000):
         context.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
         context.line_to(link.nodes[1].position.x, link.nodes[1].position.y)
         context.set_source_rgb(0, 0, 0)
-        context.set_line_width(0.01 * (link.length_natural / link.get_length()))
+        context.set_line_width(0.01 * (link.length / link.get_length()))
         context.stroke()
 
     for node in nodes:
