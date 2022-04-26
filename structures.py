@@ -12,30 +12,30 @@ class Structure:
         self.nodes = nodes
         self.links = links
 
-    def move(self, vector: Vector) -> None:
+    def translate(self, vector: Vector) -> None:
         for node in self.nodes:
             node.position += vector
 
     def scale(self, factor: float, center: Vector = None) -> None:
         if center is None:
             center = Vector(0, 0)
-        self.move(-center)
+        self.translate(-center)
         for node in self.nodes:
             node.position *= factor
         for link in self.links:
             link.length *= factor
-        self.move(center)
+        self.translate(center)
 
     def rotate(self, radians: float, center: Vector = None) -> None:
         if center is None:
             center = Vector(0, 0)
-        self.move(-center)
+        self.translate(-center)
         for node in self.nodes:
             node_angle = atan2(node.position.y, node.position.x)
             node_radius = node.position.len()
             node.position.x = node_radius * cos(node_angle + radians)
             node.position.y = node_radius * sin(node_angle + radians)
-        self.move(center)
+        self.translate(center)
 
 
 class Tower(Structure):

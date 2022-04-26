@@ -7,8 +7,9 @@ from structures import Structure, Tower, Pyramid, Wheel
 from vectors import Vector
 
 
-structure = Tower(width=0.3, height=0.3, grid=(3, 3), mass=0.1, stiffness=50, dampening=1)
-structure.move(Vector(0.5, 0.5))
+structure = Tower(width=0.1, height=0.5, grid=(1, 5), mass=0.1, stiffness=50, dampening=1)
+structure.translate(Vector(0.5, 0.5))
+structure.rotate(pi / 6, center=Vector(0.5, 0.5))
 # softbody = pyramid(position=Vector(0.5, 0.6), width=0.5, grid=6, mass=0.1, stiffness=100, dampening=1)
 # softbody = wheel(position=Vector(0.5, 0.5), radius=0.25, rings=3, slices=10, mass=0.1, stiffness=200, dampening=1)
 nodes = structure.nodes
@@ -16,16 +17,14 @@ links = structure.links
 
 ln = [link.length for link in links]
 for node in nodes:
-    node.position.y -= 0.35
+    node.velocity.x += 2
+    node.velocity.y += 3
 
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
 
 
-for i in range(100):
-    if i % 30 == 0:
-        for l, link in enumerate(links):
-            link.length = ln[l] * (1 + 0.2 * (random() - 0.5))
+for i in range(500):
     for s in range(10):
         for node in nodes:
             node.force.set(Vector(0, -9.8 * node.mass))
@@ -45,8 +44,12 @@ for i in range(100):
             if node.position.y > 1:
                 node.force.y -= 500 * abs(1 - node.position.y)
 
+        nodes[0].force.set(Vector(0, 0))
+        nodes[0].velocity.set(Vector(0, 0))
+
         for node in nodes:
             node.integrate(time=0.0005)
+
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 500, 500)
     context = cairo.Context(surface)
