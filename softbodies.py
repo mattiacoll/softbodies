@@ -3,6 +3,19 @@ from typing import Callable
 from vectors import Vector
 
 
+class Softbody:
+    nodes: list[Node]
+    links: list[Link]
+
+    def __init__(self, nodes: list[Node], links: list[Link]) -> None:
+        self.nodes = nodes
+        self.links = links
+
+    def integrate(self, time: float) -> None:
+        for node in self.nodes:
+            node.integrate(time)
+
+
 class Node:
     """A point mass particle that implements Euler integration."""
     mass: float

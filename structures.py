@@ -1,16 +1,26 @@
 from __future__ import annotations
 from math import sqrt, cos, sin, atan2, tau
-from softbodies import Node, Link
+from softbodies import Softbody, Node, Link
 from vectors import Vector
 
 
-class Structure:
+class Structure(Softbody):
     nodes: list[Node]
     links: list[Link]
 
     def __init__(self, nodes: list[Node], links: list[Link]) -> None:
-        self.nodes = nodes
-        self.links = links
+        super().__init__(nodes, links)
+
+    def get_components(self) -> tuple[list[Node], list[Link]]:
+        return self.nodes, self.links
+
+    def get_total_mass(self) -> float:
+        total_mass = sum(node.mass for node in self.nodes)
+        return total_mass
+
+    def get_center_mass(self) -> Vector:
+        center_mass = sum(node.mass * node.position for node in self.nodes)
+        return center_mass
 
     def translate(self, vector: Vector) -> None:
         for node in self.nodes:

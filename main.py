@@ -12,8 +12,7 @@ structure.translate(Vector(0.5, 0.5))
 structure.rotate(pi / 6, center=Vector(0.5, 0.5))
 # softbody = pyramid(position=Vector(0.5, 0.6), width=0.5, grid=6, mass=0.1, stiffness=100, dampening=1)
 # softbody = wheel(position=Vector(0.5, 0.5), radius=0.25, rings=3, slices=10, mass=0.1, stiffness=200, dampening=1)
-nodes = structure.nodes
-links = structure.links
+nodes, links = structure.get_components()
 
 ln = [link.length for link in links]
 for node in nodes:
