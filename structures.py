@@ -49,51 +49,57 @@ class Structure(Softbody):
 
 
 class Tower(Structure):
+    nodes_tower: list[list[Node]]
+
     def __init__(self, width: float, height: float, grid: tuple[int, int], mass: float, stiffness: float, dampening: float) -> None:
-        nodes_mesh = []
+        nodes_tower = []
         for x in range(grid[0] + 1):
-            nodes_mesh.append([])
+            nodes_tower.append([])
             for y in range(grid[1] + 1):
                 node_mass = mass / ((grid[0] + 1) * (grid[1] + 1))
                 node_position = Vector(width * (x / grid[0] - 0.5),
                                        height * (y / grid[1] - 0.5))
                 node = Node(node_mass, node_position)
-                nodes_mesh[x].append(node)
+                nodes_tower[x].append(node)
         links = []
         for x in range(grid[0]):
             for y in range(grid[1] + 1):
-                links.append(Link((nodes_mesh[x][y], nodes_mesh[x + 1][y]), stiffness, dampening))
+                links.append(Link((nodes_tower[x][y], nodes_tower[x + 1][y]), stiffness, dampening))
         for x in range(grid[0] + 1):
             for y in range(grid[1]):
-                links.append(Link((nodes_mesh[x][y], nodes_mesh[x][y + 1]), stiffness, dampening))
+                links.append(Link((nodes_tower[x][y], nodes_tower[x][y + 1]), stiffness, dampening))
         for x in range(grid[0]):
             for y in range(grid[1]):
-                links.append(Link((nodes_mesh[x][y], nodes_mesh[x + 1][y + 1]), stiffness, dampening))
-                links.append(Link((nodes_mesh[x + 1][y], nodes_mesh[x][y + 1]), stiffness, dampening))
-        nodes = [node for buffer in nodes_mesh for node in buffer]
+                links.append(Link((nodes_tower[x][y], nodes_tower[x + 1][y + 1]), stiffness, dampening))
+                links.append(Link((nodes_tower[x + 1][y], nodes_tower[x][y + 1]), stiffness, dampening))
+        nodes = [node for buffer in nodes_tower for node in buffer]
         super().__init__(nodes, links)
+        self.nodes_tower = nodes_tower
 
 
 class Pyramid(Structure):
+    nodes_pyramid: list[list[Node]]
+
     def __init__(self, width: float, grid: int, mass: float, stiffness: float, dampening: float) -> None:
         height = (sqrt(3) / 2) * width
-        nodes_mesh = []
+        nodes_pyramid = []
         for y in range(grid + 1):
-            nodes_mesh.append([])
+            nodes_pyramid.append([])
             for x in range(grid + 1 - y):
                 node_mass = mass / ((grid + 1) * (grid + 2) / 2)
                 node_position = Vector(width * ((x + 0.5 * y) / grid - 0.5),
                                        height * (y / grid - 0.5))
                 node = Node(node_mass, node_position)
-                nodes_mesh[y].append(node)
+                nodes_pyramid[y].append(node)
         links = []
         for y in range(grid):
             for x in range(grid - y):
-                links.append(Link((nodes_mesh[y][x], nodes_mesh[y + 1][x]), stiffness, dampening))
-                links.append(Link((nodes_mesh[y][x], nodes_mesh[y][x + 1]), stiffness, dampening))
-                links.append(Link((nodes_mesh[y][-x - 1], nodes_mesh[y + 1][-x - 1]), stiffness, dampening))
-        nodes = [node for buffer in nodes_mesh for node in buffer]
+                links.append(Link((nodes_pyramid[y][x], nodes_pyramid[y + 1][x]), stiffness, dampening))
+                links.append(Link((nodes_pyramid[y][x], nodes_pyramid[y][x + 1]), stiffness, dampening))
+                links.append(Link((nodes_pyramid[y][-x - 1], nodes_pyramid[y + 1][-x - 1]), stiffness, dampening))
+        nodes = [node for buffer in nodes_pyramid for node in buffer]
         super().__init__(nodes, links)
+        self.nodes_pyramid = nodes_pyramid
 
 
 class Wheel(Structure):

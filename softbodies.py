@@ -39,18 +39,18 @@ class Node:
 class Link:
     """A massless Hookean spring that features a pair of spring stiffness and dampening forces."""
     nodes: tuple[Node, Node]
+    length: float
     stiffness: float
     dampening: float
-    length: float
 
     def __init__(self, nodes: tuple[Node, Node], stiffness: float, dampening: float, length: float = None) -> None:
         self.nodes = nodes
-        self.stiffness = stiffness
-        self.dampening = dampening
         if length is None:
             self.length = Vector.dist(nodes[0].position, nodes[1].position)
         else:
             self.length = length
+        self.stiffness = stiffness
+        self.dampening = dampening
 
     def get_length(self) -> float:
         """Get the momentary length of the link."""
