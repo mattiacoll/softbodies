@@ -7,7 +7,9 @@ from structures import Structure, Tower, Pyramid, Wheel
 from vectors import Vector
 
 
-structure = Tower(width=0.1, height=0.5, grid=(1, 5), mass=0.1, stiffness=50, dampening=1)
+structure = Tower(width=0.3, height=0.5, grid=(3, 5), mass=0.1, stiffness=50, dampening=1)
+# structure = Pyramid(width=0.5, grid=5, mass=0.1, stiffness=50, dampening=1)
+# structure = Wheel(radius=0.25, rings=5, slices=5, mass=0.1, stiffness=100, dampening=1)
 structure.translate(Vector(0.5, 0.5))
 structure.rotate(pi / 6, center=Vector(0.5, 0.5))
 
@@ -24,7 +26,7 @@ camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
 
 
-for i in range(500):
+for i in range(250):
     for s in range(10):
         for node in nodes:
             node.force.set(Vector(0, -9.8 * node.mass))
@@ -35,17 +37,17 @@ for i in range(500):
                 link.nodes[0].position, link.nodes[1].position))
 
         for node in nodes:
+            force_normal = Vector(0, 0)
             if node.position.x < 0:
-                node.force.x += 500 * abs(node.position.x)
-            if node.position.x > 1:
-                node.force.x -= 500 * abs(1 - node.position.x)
+                force_normal.x += 100 * abs(node.position.x)
+            elif node.position.x > 1:
+                force_normal.x -= 100 * abs(1 - node.position.x)
             if node.position.y < 0:
-                node.force.y += 500 * abs(node.position.y)
-            if node.position.y > 1:
-                node.force.y -= 500 * abs(1 - node.position.y)
-
-        # nodes[0].force.set(Vector(0, 0))
-        # nodes[0].velocity.set(Vector(0, 0))
+                force_normal.y += 100 * abs(node.position.y)
+            elif node.position.y > 1:
+                force_normal.y -= 100 * abs(1 - node.position.y)
+            force_friction = -0.25 * force_normal.len() * (node.velocity / node.velocity.len())
+            node.force += force_normal + force_friction
 
         for node in nodes:
             node.integrate(time=0.0005)
