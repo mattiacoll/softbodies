@@ -26,6 +26,8 @@ camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
 
 
+os.mkdir("output")
+
 for i in range(250):
     for s in range(10):
         for node in nodes:
@@ -88,7 +90,7 @@ for i in range(250):
 
     surface.write_to_png(f"output/{i:06d}.png")
 
-
 ffmpeg.input("output/%06d.png", pattern_type="sequence", framerate=60).output("output.mp4").run(overwrite_output=True)
 for png in os.scandir("output"):
     os.remove(png)
+os.rmdir("output")
