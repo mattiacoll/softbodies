@@ -8,7 +8,7 @@ from vectors import Vector
 
 print("This program will simulate the physics of a softbody square mesh.")
 sleep(1)
-print("The object is dropped from a height of 0.5 meters and is untouched except by the walls.")
+print("The object is dropped from a height of 0.5 meters and is then launched diagonally.")
 sleep(1)
 
 print("Enter the number of horizontal grid elements in the mesh.")
@@ -31,7 +31,7 @@ while True:
     except:
         continue
 
-print("Calculating...")
+print("Integrating Hooke's law twice...")
 
 structure = Tower(width=0.1 * grid_x, height=0.1 * grid_y, grid=(grid_x, grid_y), mass=0.1, stiffness=50, dampening=1)
 structure.translate(Vector(0.5, 0.5))
@@ -42,7 +42,9 @@ camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
 
 
-os.mkdir("output")
+os.makedirs("output", exist_ok=True)
+for png in os.scandir("output"):
+    os.remove(png)
 
 for i in range(250):
     if i == 100:
