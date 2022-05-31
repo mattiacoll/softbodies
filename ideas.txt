@@ -1,7 +1,0 @@
-nice rendering of softbody structures
-making lots of variations of spring meshes
-friction
-collisions
-collisions that modify the resting spring lengths
-creatures that contract and expand their muscles to move
-various ways to visualize simulation with matplotlib

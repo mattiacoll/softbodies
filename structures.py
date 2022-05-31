@@ -127,3 +127,9 @@ class Wheel(Structure):
 
         nodes = [node for buffer in nodes_mesh for node in buffer]
         super().__init__(nodes, links)
+
+
+if __name__ == "__main__":
+    from time import sleep
+    print("Do not run me! This is just a dependency program")
+    sleep(5)

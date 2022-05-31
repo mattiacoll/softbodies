@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Callable
 from vectors import Vector
 
 
@@ -79,3 +78,9 @@ class Link:
     def integrate(self, time: float) -> None:
         self.nodes[0].integrate(time)
         self.nodes[1].integrate(time)
+
+
+if __name__ == "__main__":
+    from time import sleep
+    print("Do not run me! This is just a dependency program")
+    sleep(5)
