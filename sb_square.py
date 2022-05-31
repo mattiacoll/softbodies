@@ -1,26 +1,42 @@
 import os
 from math import pi, tau
-from random import random
+from time import sleep
 import cairo
 import ffmpeg
-from structures import Structure, Tower, Pyramid, Wheel
+from structures import Tower
 from vectors import Vector
 
+print("This program will simulate the physics of a softbody square mesh.")
+sleep(1)
+print("The object is dropped from a height of 0.5 meters and is untouched except by the walls.")
+sleep(1)
 
-structure = Tower(width=0.3, height=0.5, grid=(3, 5), mass=0.1, stiffness=50, dampening=1)
-# structure = Pyramid(width=0.5, grid=5, mass=0.1, stiffness=50, dampening=1)
-# structure = Wheel(radius=0.25, rings=5, slices=5, mass=0.1, stiffness=100, dampening=1)
+print("Enter the number of horizontal grid elements in the mesh.")
+grid_x = 1
+while True:
+    try:
+        grid_x = int(input("[1-7]: "))
+        assert 1 <= grid_x <= 7
+        break
+    except:
+        continue
+
+print("Enter the number of vertical grid elements in the mesh.")
+grid_y = 1
+while True:
+    try:
+        grid_y = int(input("[1-7]: "))
+        assert 1 <= grid_y <= 7
+        break
+    except:
+        continue
+
+print("Calculating...")
+
+structure = Tower(width=0.1 * grid_x, height=0.1 * grid_y, grid=(grid_x, grid_y), mass=0.1, stiffness=50, dampening=1)
 structure.translate(Vector(0.5, 0.5))
-structure.rotate(pi / 6, center=Vector(0.5, 0.5))
-
-# softbody = pyramid(position=Vector(0.5, 0.6), width=0.5, grid=6, mass=0.1, stiffness=100, dampening=1)
-# softbody = wheel(position=Vector(0.5, 0.5), radius=0.25, rings=3, slices=10, mass=0.1, stiffness=200, dampening=1)
+structure.rotate(pi / 12, center=Vector(0.5, 0.5))
 nodes, links = structure.get_components()
-
-ln = [link.length for link in links]
-for node in nodes:
-    node.velocity.x += 4
-    node.velocity.y += 3
 
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
@@ -29,6 +45,11 @@ camera_zoom = 0.9
 os.mkdir("output")
 
 for i in range(250):
+    if i == 100:
+        for node in nodes:
+            node.velocity.x += 3
+            node.velocity.y += 5
+
     for s in range(10):
         for node in nodes:
             node.force.set(Vector(0, -9.8 * node.mass))
@@ -48,16 +69,17 @@ for i in range(250):
                 force_normal.y += 100 * abs(node.position.y)
             elif node.position.y > 1:
                 force_normal.y -= 100 * abs(1 - node.position.y)
-            force_friction = -0.25 * force_normal.len() * (node.velocity / node.velocity.len())
+            try:
+                force_friction = -0.25 * force_normal.len() * (node.velocity / node.velocity.len())
+            except ZeroDivisionError:
+                force_friction = Vector(0, 0)
             node.force += force_normal + force_friction
 
         for node in nodes:
             node.integrate(time=0.0005)
 
-
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 500, 500)
     context = cairo.Context(surface)
-
     context.scale(500, 500)
     context.rectangle(0, 0, 1, 1)
     context.set_source_rgb(1, 1, 1)
@@ -94,3 +116,4 @@ ffmpeg.input("output/%06d.png", pattern_type="sequence", framerate=60).output("o
 for png in os.scandir("output"):
     os.remove(png)
 os.rmdir("output")
+os.startfile("output.mp4")
