@@ -3,37 +3,27 @@ from math import pi, tau
 from time import sleep
 import cairo
 import ffmpeg
-from structures import Tower
+from structures import Pyramid
 from vectors import Vector
 
-print("This program will simulate the physics of a softbody square mesh.")
+print("This program will simulate the physics of a softbody triangle mesh.")
 sleep(1)
-print("The object is dropped from a height of 0.5 meters and is then launched diagonally.")
+print("The object is dropped from a height of 0.5 meters and is then launched diagonally.\n")
 sleep(1)
 
-print("Enter the number of horizontal grid elements in the mesh.")
-grid_x = 1
+print("Enter the number of edge grid elements in the mesh.")
+grid = 1
 while True:
     try:
-        grid_x = int(input("[1-7]: "))
-        assert 1 <= grid_x <= 7
+        grid = int(input("[1-7]: "))
+        assert 1 <= grid <= 7
         break
     except:
         continue
 
-print("Enter the number of vertical grid elements in the mesh.")
-grid_y = 1
-while True:
-    try:
-        grid_y = int(input("[1-7]: "))
-        assert 1 <= grid_y <= 7
-        break
-    except:
-        continue
+print("Solving differential equations...")
 
-print("Integrating Hooke's law twice...")
-
-structure = Tower(width=0.1 * grid_x, height=0.1 * grid_y, grid=(grid_x, grid_y), mass=0.1, stiffness=50, dampening=1)
+structure = Pyramid(width=0.1 * grid, grid=grid, mass=0.1, stiffness=100, dampening=1)
 structure.translate(Vector(0.5, 0.5))
 structure.rotate(pi / 12, center=Vector(0.5, 0.5))
 nodes, links = structure.get_components()
