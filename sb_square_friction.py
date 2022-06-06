@@ -58,13 +58,15 @@ for i in range(250):
             elif node.position.y > 1:
                 force_normal.y -= 100 * abs(1 - node.position.y)
             try:
-                force_friction = -1 * friction_coefficient * force_normal.len() * (node.velocity / node.velocity.len())
+                force_friction = friction_coefficient * force_normal.len() * Vector(-node.velocity.x, 0)
             except ZeroDivisionError:
                 force_friction = Vector(0, 0)
             node.force += force_normal + force_friction
 
         for node in nodes:
-            node.integrate(time=0.0005)
+            node.acceleration = node.force / node.mass
+            node.velocity += node.acceleration * 0.0005
+            node.position += node.velocity * 0.0005
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 500, 500)
     context = cairo.Context(surface)
@@ -85,14 +87,13 @@ for i in range(250):
     for link in links:
         context.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
         context.line_to(link.nodes[1].position.x, link.nodes[1].position.y)
-        context.set_source_rgb(0, 0, 0)
+        context.set_source_rgb(1, 0.3 - abs(link.get_force() / 3), 0.3 - abs(link.get_force() / 3))
         context.set_line_width(0.01 * (link.length / link.get_length()))
         context.stroke()
 
     for node in nodes:
-        amt = node.velocity.len()
         context.arc(node.position.x, node.position.y, 0.01, 0, tau)
-        context.set_source_rgb(1, 1 - amt / 5, 1 - amt / 5)
+        context.set_source_rgb(1, 1, 1)
         context.fill_preserve()
         context.set_source_rgb(0, 0, 0)
         context.set_line_width(0.005)

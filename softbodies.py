@@ -10,29 +10,21 @@ class Softbody:
         self.nodes = nodes
         self.links = links
 
-    def integrate(self, time: float) -> None:
-        for node in self.nodes:
-            node.integrate(time)
-
 
 class Node:
     """A point mass particle that implements Euler integration."""
     mass: float
     position: Vector
     velocity: Vector
+    acceleration: Vector
     force: Vector
 
     def __init__(self, mass: float, position: Vector) -> None:
         self.mass = mass
         self.position = position
         self.velocity = Vector(0, 0)
+        self.acceleration = Vector(0, 0)
         self.force = Vector(0, 0)
-
-    def integrate(self, time: float) -> None:
-        """Integrate the position and velocity with Euler's method."""
-        acceleration = self.force / self.mass
-        self.velocity += acceleration * time
-        self.position += self.velocity * time
 
 
 class Link:
@@ -55,7 +47,7 @@ class Link:
         """Get the momentary length of the link."""
         return Vector.dist(self.nodes[0].position, self.nodes[1].position)
 
-    def get_speed(self) -> float:
+    def get_velocity(self) -> float:
         """Get the speed of the expansion/contraction of the link (positive/negative)."""
         return Vector.dot(self.nodes[0].position - self.nodes[1].position, self.nodes[0].velocity - self.nodes[1].velocity) / self.get_length()
 
@@ -69,18 +61,8 @@ class Link:
 
     def get_dampening_force(self) -> float:
         """Get the spring dampening force expansion/contraction (positive/negative)."""
-        return -self.dampening * self.get_speed()
+        return -self.dampening * self.get_velocity()
 
     def get_force(self) -> float:
         """Get the spring force expansion/contraction (positive/negative)."""
         return self.get_stiffness_force() + self.get_dampening_force()
-
-    def integrate(self, time: float) -> None:
-        self.nodes[0].integrate(time)
-        self.nodes[1].integrate(time)
-
-
-if __name__ == "__main__":
-    from time import sleep
-    print("Do not run me! This is just a dependency program")
-    sleep(5)
