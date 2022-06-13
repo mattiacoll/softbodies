@@ -1,4 +1,4 @@
-"""Python module for simulating physics of softbodies following Hooke's principles."""
+"""Module for simulating physics of softbodies following Hooke's principles."""
 
 from __future__ import annotations
 from vectors import Vector

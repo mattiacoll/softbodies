@@ -1,4 +1,4 @@
-"""Python module for dealing with two-dimensional vectors."""
+"""Module for dealing with two-dimensional vectors."""
 
 from __future__ import annotations
 from math import hypot
