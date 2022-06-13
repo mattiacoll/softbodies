@@ -6,6 +6,5 @@ setup(
     description="Module for simulating physics of softbodies following Hooke's principles.",
     author="Elias Dobrin",
     url="https://github.com/Elixonus/softbodies",
-    license="MIT",
     keywords=["softbody", "spring", "springs"]
 )
