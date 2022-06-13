@@ -124,9 +124,3 @@ class Vector:
     def copy(self) -> Vector:
         """Copy the vector instance."""
         return Vector(self.x, self.y)
-
-
-if __name__ == "__main__":
-    from time import sleep
-    print("Do not run me! This is just a dependency program")
-    sleep(5)
