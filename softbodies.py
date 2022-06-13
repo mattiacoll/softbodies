@@ -1,12 +1,16 @@
+"""Python module for simulating physics of softbodies following Hooke's principles."""
+
 from __future__ import annotations
 from vectors import Vector
 
 
 class Softbody:
+    """An object which encapsulates a set of nodes and links."""
     nodes: list[Node]
     links: list[Link]
 
     def __init__(self, nodes: list[Node], links: list[Link]) -> None:
+        """Create a softbody from a list of nodes and list of links."""
         self.nodes = nodes
         self.links = links
 
@@ -20,6 +24,7 @@ class Node:
     force: Vector
 
     def __init__(self, mass: float, position: Vector) -> None:
+        """Create a node from mass and position that is static."""
         self.mass = mass
         self.position = position
         self.velocity = Vector(0, 0)
@@ -35,6 +40,7 @@ class Link:
     dampening: float
 
     def __init__(self, nodes: tuple[Node, Node], stiffness: float, dampening: float, length: float = None) -> None:
+        """Create a link from a pair of nodes, stiffness coefficient, dampening coefficient and length."""
         self.nodes = nodes
         if length is None:
             self.length = Vector.dist(nodes[0].position, nodes[1].position)
