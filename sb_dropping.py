@@ -14,8 +14,8 @@ time = 5
 iterations = 3000
 f = 0
 camera_position = Vector(0.5, 0.5)
-camera_zoom = 0.2
-softbody = Tower(width=0.5, height=0.5, grid=(2, 2), mass=1, stiffness=10, dampening=0)
+camera_zoom = 0.9
+softbody = Tower(width=0.5, height=0.5, grid=(7, 7), mass=1, stiffness=100, dampening=1)
 softbody.translate(Vector(0.5, 0.5))
 nodes = softbody.nodes
 links = softbody.links
@@ -37,30 +37,30 @@ for i in range(iterations):
         node_force_normal = Vector(0, 0)
         node_force_friction = Vector(0, 0)
         if node.position.x < 0:
-            node_force_normal.add(Vector(-node.position.x, 0))
+            node_force_normal.add(Vector(-500 * node.position.x, 0))
             try:
                 node_force_friction.add(Vector(0, -node.velocity.y / abs(node.velocity.y)))
             except ZeroDivisionError:
                 node_force_friction.add(Vector(0, 0))
         if node.position.y < 0:
-            node_force_normal.add(Vector(0, -node.position.y))
+            node_force_normal.add(Vector(0, -500 * node.position.y))
             try:
                 node_force_friction.add(Vector(0, -node.velocity.x / abs(node.velocity.x)))
             except ZeroDivisionError:
                 node_force_friction.add(Vector(0, 0))
         if node.position.x > 1:
-            node_force_normal.add(Vector(1 - node.position.x, 0))
+            node_force_normal.add(Vector(500 * (1 - node.position.x), 0))
             try:
                 node_force_friction.add(Vector(0, -node.velocity.y / abs(node.velocity.y)))
             except ZeroDivisionError:
                 node_force_friction.add(Vector(0, 0))
         if node.position.y > 1:
-            node_force_normal.add(Vector(0, 1 - node.position.y))
+            node_force_normal.add(Vector(0, 500 * (1 - node.position.y)))
             try:
                 node_force_friction.add(Vector(0, -node.velocity.x / abs(node.velocity.x)))
             except ZeroDivisionError:
                 node_force_friction.add(Vector(0, 0))
-        node.force += 10 * node_force_normal
+        node.force += node_force_normal + 0 * node_force_normal.len() * node_force_friction
     for node in nodes:
         node.acceleration = node.force / node.mass
         node.velocity.add(node.acceleration * (time / iterations))
@@ -85,7 +85,7 @@ for i in range(iterations):
         for link in links:
             context.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
             context.line_to(link.nodes[1].position.x, link.nodes[1].position.y)
-            context.set_source_rgb(1, 0.3 - abs(link.get_force() / 3), 0.3 - abs(link.get_force() / 3))
+            context.set_source_rgb(0, 0, 0)
             context.set_line_width(0.01 * (link.length / link.get_length()))
             context.stroke()
 
