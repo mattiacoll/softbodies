@@ -43,7 +43,6 @@ f = 0
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
 softbody = Tower(width=0.5, height=0.5, grid=(7, 7), mass=1, stiffness=200 * input_s, dampening=2 * input_d)
-softbody.rotate(3.1415 / 6)
 softbody.translate(Vector(0.5, 0.5))
 nodes = softbody.nodes
 links = softbody.links
