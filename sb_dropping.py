@@ -1,5 +1,5 @@
 import os
-from math import tau
+from math import tau, sqrt
 import cairo
 import ffmpeg
 from structures import Tower
@@ -43,7 +43,8 @@ f = 0
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
 softbody = Tower(width=0.5, height=0.5, grid=(7, 7), mass=1, stiffness=200 * input_s, dampening=2 * input_d)
-softbody.translate(Vector(0.8, 0.5))
+softbody.rotate(3.1415 / 6)
+softbody.translate(Vector(0.5, 0.5))
 nodes = softbody.nodes
 links = softbody.links
 
@@ -97,7 +98,10 @@ for i in range(iterations):
         context = cairo.Context(surface)
         context.scale(500, 500)
         context.rectangle(0, 0, 1, 1)
-        context.set_source_rgb(1, 1, 1)
+        gradient = cairo.RadialGradient(0.5, 0.5, 0, 0.5, 0.5, sqrt(2) / 2)
+        gradient.add_color_stop_rgb(0, 1, 1, 1)
+        gradient.add_color_stop_rgb(1, 0.8, 0.8, 0.8)
+        context.set_source(gradient)
         context.fill()
         context.translate(0.5, 0.5)
         context.scale(1, -1)
@@ -122,13 +126,6 @@ for i in range(iterations):
             context.fill_preserve()
             context.set_source_rgb(0, 0, 0)
             context.set_line_width(0.005)
-            context.stroke()
-
-            context.move_to(node.position.x, node.position.y)
-            vector = 0.1 * node.velocity
-            context.line_to(node.position.x + vector.x, node.position.y + vector.y)
-            context.set_source_rgb(1, 0, 0)
-            context.set_line_width(0.0025)
             context.stroke()
 
         surface.write_to_png(f"output/{f:06d}.png")
