@@ -1,15 +1,24 @@
+import os
+from math import tau
+import cairo
+import ffmpeg
 from softbodies import Softbody, Node, Link
 from structures import Tower
 from vectors import Vector
 
+os.makedirs("output", exist_ok=True)
+for png in os.scandir("output"):
+    os.remove(png)
+
 time = 5
 iterations = 1000
-
+camera_position = Vector(0.5, 0.5)
+camera_zoom = 0.9
 softbody = Tower(width=0.5, height=0.5, grid=(5, 5), mass=1, stiffness=100, dampening=0)
 softbody.translate(Vector(0.5, 0.5))
-
 nodes = softbody.nodes
 links = softbody.links
+
 
 for i in range(iterations):
     for node in nodes:
@@ -57,3 +66,41 @@ for i in range(iterations):
         node.velocity.add(node.acceleration * (time / iterations))
         node.position.add(node.velocity * (time / iterations))
     if iterations % (iterations / time / 60) == 0:
+        surface = cairo.ImageSurface(cairo.FORMAT_RGB24, 500, 500)
+        context = cairo.Context(surface)
+        context.scale(500, 500)
+        context.rectangle(0, 0, 1, 1)
+        context.set_source_rgb(1, 1, 1)
+        context.fill()
+        context.translate(0.5, 0.5)
+        context.scale(1, -1)
+        context.scale(camera_zoom, camera_zoom)
+        context.translate(-camera_position.x, -camera_position.y)
+
+        context.rectangle(0, 0, 1, 1)
+        context.set_source_rgb(0, 0, 0)
+        context.set_line_width(0.01)
+        context.stroke()
+
+        for link in links:
+            context.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
+            context.line_to(link.nodes[1].position.x, link.nodes[1].position.y)
+            context.set_source_rgb(1, 0.3 - abs(link.get_force() / 3), 0.3 - abs(link.get_force() / 3))
+            context.set_line_width(0.01 * (link.length / link.get_length()))
+            context.stroke()
+
+        for node in nodes:
+            context.arc(node.position.x, node.position.y, 0.01, 0, tau)
+            context.set_source_rgb(1, 1, 1)
+            context.fill_preserve()
+            context.set_source_rgb(0, 0, 0)
+            context.set_line_width(0.005)
+            context.stroke()
+
+        surface.write_to_png(f"output/{i:06d}.png")
+
+ffmpeg.input("output/%06d.png", pattern_type="sequence", framerate=60).output("output.mp4").run(overwrite_output=True)
+for png in os.scandir("output"):
+    os.remove(png)
+os.rmdir("output")
+os.startfile("output.mp4")
