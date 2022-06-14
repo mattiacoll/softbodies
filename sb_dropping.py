@@ -2,21 +2,48 @@ import os
 from math import tau
 import cairo
 import ffmpeg
-from softbodies import Softbody, Node, Link
 from structures import Tower
 from vectors import Vector
+
+input_s = 0.5
+
+while True:
+    try:
+        data = input("STIFFNESS (0-1) [0.5]: ")
+        if data == "":
+            break
+        input_s = float(data) ** 2
+        if 0 <= input_s <= 1:
+            break
+        continue
+    except ValueError:
+        continue
+
+input_d = 0.5
+
+while True:
+    try:
+        data = input("DAMPENING (0-1) [0.5]: ")
+        if data == "":
+            break
+        input_d = float(data) ** 2
+        if 0 <= input_d <= 1:
+            break
+        continue
+    except ValueError:
+        continue
 
 os.makedirs("output", exist_ok=True)
 for png in os.scandir("output"):
     os.remove(png)
 
 time = 5
-iterations = 3000
+iterations = 5000
 f = 0
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
-softbody = Tower(width=0.5, height=0.5, grid=(7, 7), mass=1, stiffness=100, dampening=1)
-softbody.translate(Vector(0.5, 0.5))
+softbody = Tower(width=0.5, height=0.5, grid=(7, 7), mass=1, stiffness=200 * input_s, dampening=2 * input_d)
+softbody.translate(Vector(0.8, 0.5))
 nodes = softbody.nodes
 links = softbody.links
 
@@ -95,6 +122,13 @@ for i in range(iterations):
             context.fill_preserve()
             context.set_source_rgb(0, 0, 0)
             context.set_line_width(0.005)
+            context.stroke()
+
+            context.move_to(node.position.x, node.position.y)
+            vector = 0.1 * node.velocity
+            context.line_to(node.position.x + vector.x, node.position.y + vector.y)
+            context.set_source_rgb(1, 0, 0)
+            context.set_line_width(0.0025)
             context.stroke()
 
         surface.write_to_png(f"output/{f:06d}.png")
