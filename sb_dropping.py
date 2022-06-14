@@ -11,14 +11,14 @@ for png in os.scandir("output"):
     os.remove(png)
 
 time = 5
-iterations = 1000
+iterations = 3000
+f = 0
 camera_position = Vector(0.5, 0.5)
-camera_zoom = 0.9
-softbody = Tower(width=0.5, height=0.5, grid=(5, 5), mass=1, stiffness=100, dampening=0)
+camera_zoom = 0.2
+softbody = Tower(width=0.5, height=0.5, grid=(2, 2), mass=1, stiffness=10, dampening=0)
 softbody.translate(Vector(0.5, 0.5))
 nodes = softbody.nodes
 links = softbody.links
-
 
 for i in range(iterations):
     for node in nodes:
@@ -43,7 +43,7 @@ for i in range(iterations):
             except ZeroDivisionError:
                 node_force_friction.add(Vector(0, 0))
         if node.position.y < 0:
-            node_force_normal.add(Vector(-node.position.y, 0))
+            node_force_normal.add(Vector(0, -node.position.y))
             try:
                 node_force_friction.add(Vector(0, -node.velocity.x / abs(node.velocity.x)))
             except ZeroDivisionError:
@@ -55,17 +55,17 @@ for i in range(iterations):
             except ZeroDivisionError:
                 node_force_friction.add(Vector(0, 0))
         if node.position.y > 1:
-            node_force_normal.add(Vector(1 - node.position.y, 0))
+            node_force_normal.add(Vector(0, 1 - node.position.y))
             try:
                 node_force_friction.add(Vector(0, -node.velocity.x / abs(node.velocity.x)))
             except ZeroDivisionError:
                 node_force_friction.add(Vector(0, 0))
-        node.force += node_force_normal + node_force_friction
+        node.force += 10 * node_force_normal
     for node in nodes:
         node.acceleration = node.force / node.mass
         node.velocity.add(node.acceleration * (time / iterations))
         node.position.add(node.velocity * (time / iterations))
-    if iterations % (iterations / time / 60) == 0:
+    if i % round(iterations / time / 60) == 0:
         surface = cairo.ImageSurface(cairo.FORMAT_RGB24, 500, 500)
         context = cairo.Context(surface)
         context.scale(500, 500)
@@ -97,7 +97,8 @@ for i in range(iterations):
             context.set_line_width(0.005)
             context.stroke()
 
-        surface.write_to_png(f"output/{i:06d}.png")
+        surface.write_to_png(f"output/{f:06d}.png")
+        f += 1
 
 ffmpeg.input("output/%06d.png", pattern_type="sequence", framerate=60).output("output.mp4").run(overwrite_output=True)
 for png in os.scandir("output"):
