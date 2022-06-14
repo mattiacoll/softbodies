@@ -2,13 +2,16 @@ from softbodies import Softbody, Node, Link
 from structures import Tower
 from vectors import Vector
 
+time = 5
+iterations = 1000
+
 softbody = Tower(width=0.5, height=0.5, grid=(5, 5), mass=1, stiffness=100, dampening=0)
 softbody.translate(Vector(0.5, 0.5))
 
 nodes = softbody.nodes
 links = softbody.links
 
-for i in range(1000):
+for i in range(iterations):
     for node in nodes:
         node.force.set(Vector(0, 0))
     for node in nodes:
@@ -48,3 +51,9 @@ for i in range(1000):
                 node_force_friction.add(Vector(0, -node.velocity.x / abs(node.velocity.x)))
             except ZeroDivisionError:
                 node_force_friction.add(Vector(0, 0))
+        node.force += node_force_normal + node_force_friction
+    for node in nodes:
+        node.acceleration = node.force / node.mass
+        node.velocity.add(node.acceleration * (time / iterations))
+        node.position.add(node.velocity * (time / iterations))
+    if iterations % (iterations / time / 60) == 0:
