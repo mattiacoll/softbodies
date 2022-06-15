@@ -1,32 +1,17 @@
 import os
-from math import tau, sqrt
+from math import pi, tau, sqrt
 import cairo
 import ffmpeg
 from structures import Tower
 from vectors import Vector
 
-input_s = 0.5
+input_f = 0.5
 
 while True:
     try:
-        data = input("ENTER LINK STIFFNESS (0-1): ")
-        input_s = float(data)
-        if 0 <= input_s <= 1:
-            break
-        else:
-            print("VALUE NOT BETWEEN THE SPECIFIED RANGE.")
-        continue
-    except ValueError:
-        print("VALUE IS INVALID.")
-        continue
-
-input_d = 0.5
-
-while True:
-    try:
-        data = input("ENTER LINK DAMPENING (0-1): ")
-        input_d = float(data)
-        if 0 <= input_d <= 1:
+        data = input("ENTER FRICTION COEFFICIENT (0-1): ")
+        input_f = float(data)
+        if 0 <= input_f <= 1:
             break
         else:
             print("VALUE NOT BETWEEN THE SPECIFIED RANGE.")
@@ -44,10 +29,13 @@ iterations = 10000
 f = 0
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
-softbody = Tower(width=0.5, height=0.5, grid=(5, 5), mass=1, stiffness=400 * input_s ** 2, dampening=5 * input_d ** 2)
-softbody.translate(Vector(0.5, 0.5))
+softbody = Tower(width=0.3, height=0.3, grid=(3, 3), mass=1, stiffness=150, dampening=0.5)
+softbody.rotate(pi / 12)
+softbody.translate(Vector(0.15, 0.2))
 nodes = softbody.nodes
 links = softbody.links
+for node in nodes:
+    node.velocity.add(Vector(1, 0))
 
 print()
 for i in range(iterations):
@@ -55,7 +43,7 @@ for i in range(iterations):
     for node in nodes:
         node.force.set(Vector(0, 0))
     for node in nodes:
-        node.force.add(Vector(0, -9.8 * node.mass))
+        node.force.add(Vector(0, -2.8 * node.mass))
     for link in links:
         node_1 = link.nodes[0]
         node_2 = link.nodes[1]
@@ -65,16 +53,22 @@ for i in range(iterations):
         node_1.force.add(node_1_force)
         node_2.force.sub(node_1_force)
     for node in nodes:
-        node_force_normal = Vector(0, 0)
         if node.position.x < 0:
-            node_force_normal.add(Vector(-500 * node.position.x, 0))
+            node_force_normal = Vector(-500 * node.position.x, 0)
+            node.force.add(node_force_normal)
         if node.position.y < 0:
-            node_force_normal.add(Vector(0, -500 * node.position.y))
+            node_force_normal = Vector(0, -500 * node.position.y)
+            if node.velocity.x < 0:
+                node_force_friction = Vector(0.3 * input_f * node_force_normal.y, 0)
+            else:
+                node_force_friction = Vector(-0.3 * input_f * node_force_normal.y, 0)
+            node.force.add(node_force_normal + node_force_friction)
         if node.position.x > 1:
-            node_force_normal.add(Vector(500 * (1 - node.position.x), 0))
+            node_force_normal = Vector(500 * (1 - node.position.x), 0)
+            node.force.add(node_force_normal)
         if node.position.y > 1:
-            node_force_normal.add(Vector(0, 500 * (1 - node.position.y)))
-        node.force.add(node_force_normal)
+            node_force_normal = Vector(0, 500 * (1 - node.position.y))
+            node.force.add(node_force_normal)
     for node in nodes:
         node.acceleration = node.force / node.mass
         node.velocity.add(node.acceleration * (time / iterations))

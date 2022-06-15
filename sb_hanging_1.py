@@ -81,9 +81,9 @@ for i in range(iterations):
         node.velocity.add(node.acceleration * (time / iterations))
         node.position.add(node.velocity * (time / iterations))
     if i % round(iterations / time / 60) == 0:
-        surface = cairo.ImageSurface(cairo.FORMAT_RGB24, 500, 500)
+        surface = cairo.ImageSurface(cairo.FORMAT_RGB24, 1000, 1000)
         context = cairo.Context(surface)
-        context.scale(500, 500)
+        context.scale(1000, 1000)
         context.rectangle(0, 0, 1, 1)
         context.set_source_rgb(0.29, 0.17, 0)
         context.fill_preserve()
