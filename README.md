@@ -15,7 +15,7 @@ Make sure to have the [Editor config extenstion](https://editorconfig.org/) inst
 
 - Activate the virtual environment  
   ```sh
-  source ./softbodies
+  source ./bin/activate
   ```
 
 - Install the required modules
