@@ -9,28 +9,30 @@ input_s = 0.5
 
 while True:
     try:
-        data = input("STIFFNESS (0-1) [0.5]: ")
-        if data == "":
-            break
-        input_s = float(data) ** 2
+        data = input("ENTER LINK STIFFNESS (0-1): ")
+        input_s = float(data)
         if 0 <= input_s <= 1:
             break
+        else:
+            print("VALUE NOT BETWEEN THE SPECIFIED RANGE.")
         continue
     except ValueError:
+        print("VALUE IS INVALID.")
         continue
 
 input_d = 0.5
 
 while True:
     try:
-        data = input("DAMPENING (0-1) [0.5]: ")
-        if data == "":
-            break
-        input_d = float(data) ** 2
+        data = input("ENTER LINK DAMPENING (0-1): ")
+        input_d = float(data)
         if 0 <= input_d <= 1:
             break
+        else:
+            print("VALUE NOT BETWEEN THE SPECIFIED RANGE.")
         continue
     except ValueError:
+        print("VALUE IS INVALID.")
         continue
 
 os.makedirs("output", exist_ok=True)
@@ -38,16 +40,18 @@ for png in os.scandir("output"):
     os.remove(png)
 
 time = 5
-iterations = 5000
+iterations = 10000
 f = 0
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
-softbody = Tower(width=0.5, height=0.5, grid=(7, 7), mass=1, stiffness=200 * input_s, dampening=2 * input_d)
+softbody = Tower(width=0.5, height=0.5, grid=(5, 5), mass=1, stiffness=400 * input_s ** 2, dampening=5 * input_d ** 2)
 softbody.translate(Vector(0.5, 0.5))
 nodes = softbody.nodes
 links = softbody.links
 
+print()
 for i in range(iterations):
+    print(f"SOLVING DIFFERENTIAL EQUATIONS: {round(100 * (i + 1) / iterations)}%", end="\r")
     for node in nodes:
         node.force.set(Vector(0, 0))
     for node in nodes:
@@ -62,32 +66,15 @@ for i in range(iterations):
         node_2.force.sub(node_1_force)
     for node in nodes:
         node_force_normal = Vector(0, 0)
-        node_force_friction = Vector(0, 0)
         if node.position.x < 0:
             node_force_normal.add(Vector(-500 * node.position.x, 0))
-            try:
-                node_force_friction.add(Vector(0, -node.velocity.y / abs(node.velocity.y)))
-            except ZeroDivisionError:
-                node_force_friction.add(Vector(0, 0))
         if node.position.y < 0:
             node_force_normal.add(Vector(0, -500 * node.position.y))
-            try:
-                node_force_friction.add(Vector(0, -node.velocity.x / abs(node.velocity.x)))
-            except ZeroDivisionError:
-                node_force_friction.add(Vector(0, 0))
         if node.position.x > 1:
             node_force_normal.add(Vector(500 * (1 - node.position.x), 0))
-            try:
-                node_force_friction.add(Vector(0, -node.velocity.y / abs(node.velocity.y)))
-            except ZeroDivisionError:
-                node_force_friction.add(Vector(0, 0))
         if node.position.y > 1:
             node_force_normal.add(Vector(0, 500 * (1 - node.position.y)))
-            try:
-                node_force_friction.add(Vector(0, -node.velocity.x / abs(node.velocity.x)))
-            except ZeroDivisionError:
-                node_force_friction.add(Vector(0, 0))
-        node.force += node_force_normal + 0 * node_force_normal.len() * node_force_friction
+        node.force.add(node_force_normal)
     for node in nodes:
         node.acceleration = node.force / node.mass
         node.velocity.add(node.acceleration * (time / iterations))
@@ -97,9 +84,11 @@ for i in range(iterations):
         context = cairo.Context(surface)
         context.scale(500, 500)
         context.rectangle(0, 0, 1, 1)
+        context.set_source_rgb(0.29, 0.17, 0)
+        context.fill_preserve()
         gradient = cairo.RadialGradient(0.5, 0.5, 0, 0.5, 0.5, sqrt(2) / 2)
-        gradient.add_color_stop_rgb(0, 1, 1, 1)
-        gradient.add_color_stop_rgb(1, 0.8, 0.8, 0.8)
+        gradient.add_color_stop_rgba(0, 0, 0, 0, 0)
+        gradient.add_color_stop_rgba(1, 0, 0, 0, 0.2)
         context.set_source(gradient)
         context.fill()
         context.translate(0.5, 0.5)
@@ -108,6 +97,8 @@ for i in range(iterations):
         context.translate(-camera_position.x, -camera_position.y)
 
         context.rectangle(0, 0, 1, 1)
+        context.set_source_rgb(0.71, 0.94, 1)
+        context.fill_preserve()
         context.set_source_rgb(0, 0, 0)
         context.set_line_width(0.01)
         context.stroke()
