@@ -17,6 +17,7 @@ while True:
             break
         continue
     except ValueError:
+        print( "Value not valid, please insert a floating point number between 0 and 1" )
         continue
 
 input_d = 0.5
@@ -31,6 +32,7 @@ while True:
             break
         continue
     except ValueError:
+        print( "Value not valid, please insert a floating point number" )
         continue
 
 os.makedirs("output", exist_ok=True)
