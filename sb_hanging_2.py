@@ -44,7 +44,7 @@ iterations = 10000
 f = 0
 camera_position = Vector(0.5, 0.5)
 camera_zoom = 0.9
-softbody = Tower(width=0.5, height=0.5, grid=(5, 5), mass=1, stiffness=400 * input_s ** 2, dampening=5 * input_d ** 2)
+softbody = Tower(width=0.5, height=0.5, grid=(5, 5), mass=1, stiffness=200 * input_s ** 2, dampening=2 * input_d ** 2)
 softbody.translate(Vector(0.5, 0.5))
 nodes = softbody.nodes
 links = softbody.links
@@ -75,6 +75,8 @@ for i in range(iterations):
         if node.position.y > 1:
             node_force_normal.add(Vector(0, 500 * (1 - node.position.y)))
         node.force.add(node_force_normal)
+    softbody.nodes_tower[0][-1].force.set(Vector(0, 0))
+    softbody.nodes_tower[-1][-1].force.set(Vector(0, 0))
     for node in nodes:
         node.acceleration = node.force / node.mass
         node.velocity.add(node.acceleration * (time / iterations))
@@ -106,7 +108,7 @@ for i in range(iterations):
         for link in links:
             context.move_to(link.nodes[0].position.x, link.nodes[0].position.y)
             context.line_to(link.nodes[1].position.x, link.nodes[1].position.y)
-            context.set_source_rgb(0, 0, 0)
+            context.set_source_rgb(0.5 * abs(link.get_force()), 0, 0)
             context.set_line_width(0.01 * (link.length / link.get_length()))
             context.stroke()
 
@@ -114,7 +116,10 @@ for i in range(iterations):
             context.arc(node.position.x, node.position.y, 0.01, 0, tau)
             context.set_source_rgb(1, 1, 1)
             context.fill_preserve()
-            context.set_source_rgb(0, 0, 0)
+            if node is softbody.nodes_tower[0][-1] or node is softbody.nodes_tower[-1][-1]:
+                context.set_source_rgb(1, 0, 0)
+            else:
+                context.set_source_rgb(0, 0, 0)
             context.set_line_width(0.005)
             context.stroke()
 
