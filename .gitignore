@@ -133,3 +133,12 @@ dmypy.json
 
 # JetBrains
 .idea
+
+
+# python venv
+bin/
+lib/
+lib64/
+lib64
+include/
+pyvenv.cfg
